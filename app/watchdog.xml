@@ -1,0 +1,76 @@
+<WatchdogConfig logfile="watch.log" watchFrequency="15">
+    <!--
+    NOTE: The format for the projector control has changed considerably during O2 development
+          in Nov.2004.
+          The only customizable strings for the <UdpControl> are the ones for <SystemHalt> and
+          <RestartApplication>. The projector commands are handled internally by the Projector.cpp
+          base class and are not customizable. The recognized commands are:
+
+                                            Panasonic     NEC
+          projector_on                          X          X
+          projector_off                         X          X
+          projector_shutter_open                X          X
+          projector_shutter_close               X          X
+          projector_power_low (lamp output)     X          -
+          projector_power_high                  X          -
+          projector_input_select=<input>        X          X
+
+          The UDP packets containing the commands can be send via cygwin as follows:
+            echo -n <command> | nc -w 1 -u <host> 2346
+          or see whistle.py for a python implementation of UDP Broadcast
+
+          The commands are passed to all connected projectors and are observed by those projectors
+          that support the given command.          
+          
+          ProjectorControl:
+            <Projector type="nec(default)|(panasonic|pt-d5500)|pdf1|(hitachi|liesegang)" port="0" baud="19200" input="<input>">
+ 
+          Inputs:
+            RGB_1
+            RGB_2
+            VIDEO
+            SVIDEO
+            DVI
+            VIEWER
+            BNC
+
+    -->
+    <UdpControl port="2346">
+        <SystemHalt powerDownProjectors="true" command="halt"/>    
+        <SystemReboot shutterCloseProjectors="true" command="reboot"/>
+        <RestartApplication command="restart_app"/>
+        <StopApplication shutterCloseProjectors="true" command="firealarm_on"/>
+        <StartApplication command="firealarm_off"/>
+        <ProjectorControl powerUpOnStartup="true">
+            <Projector type="nec" port="0" baud="38400" input="RGB_1"/>
+        </ProjectorControl>
+    </UdpControl>
+    <!--<RebootTime>15:30</RebootTime>-->
+    <!--<HaltTime>16:10</HaltTime>-->
+    <Application binary="calc.exe" directory="">
+        <EnvironmentVariables>
+            <!--<EnvironmentVariable name="key"><![CDATA[value]]></EnvironmentVariable>-->
+        </EnvironmentVariables>
+        <Arguments>
+            <Argument>test.txt</Argument>
+        </Arguments>
+        <!--<Heartbeat>
+            <Heartbeat_File>${TEMP}/heartbeat.xml</Heartbeat_File>
+            <Allow_Missing_Heartbeats>5</Allow_Missing_Heartbeats>
+            <Heartbeat_Frequency>1</Heartbeat_Frequency>
+            <FirstHeartBeatDelay>120</FirstHeartBeatDelay>
+        </Heartbeat>-->
+        <WaitDuringStartup>0</WaitDuringStartup>
+        <WaitDuringRestart>10</WaitDuringRestart>
+        
+        <WaitingScreenImage>c:/bmw.png</WaitingScreenImage>
+        <WaitingScreenPosX>0</WaitingScreenPosX>
+        <WaitingScreenPosY>0</WaitingScreenPosY>
+        
+        <Memory_Threshold>100000</Memory_Threshold>
+        <!--<RestartDay>Monday</RestartDay>-->
+        <RestartTime>12:02</RestartTime>
+        <CheckMemoryTime>00:00</CheckMemoryTime>
+        <CheckTimedMemoryThreshold>150000</CheckTimedMemoryThreshold>
+    </Application>
+</WatchdogConfig>
