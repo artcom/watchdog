@@ -138,7 +138,7 @@ WatchDog::arm() {
         _myLogger.logToFile(std::string("Monitoring heartbeat file: ") + _myAppToWatch.getHeartbeatFile());
     }
 
-    if (getElapsedSecondsToday() > _myAppToWatch.getRestartTimeInSecondsToday()) {
+    if ( static_cast<time_t>(getElapsedSecondsToday()) >_myAppToWatch.getRestartTimeInSecondsToday()) {
         _myAppToWatch.setRestartedToday(true);
     }
 }

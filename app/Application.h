@@ -117,7 +117,7 @@ class Application {
         bool     performECG() const;
         bool     restartedToday() const;
         std::string getHeartbeatFile() const;
-        long     getRestartTimeInSecondsToday() const;
+        time_t     getRestartTimeInSecondsToday() const;
         ProcessResult    getProcessResult() const;
         std::string getFilename() const;
         std::string getArguments() const; 

@@ -513,7 +513,7 @@ std::string Application::getHeartbeatFile() const {
     return _myHeartbeatFile;
 }
 
-long Application::getRestartTimeInSecondsToday() const {
+time_t Application::getRestartTimeInSecondsToday() const {
     return _myRestartTimeInSecondsToday;
 }
 
