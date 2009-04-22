@@ -150,9 +150,9 @@ class Application {
         unsigned int     _myRestartMemoryThreshold;
 
         std::string      _myRestartDay;
-        long             _myRestartTimeInSecondsToday;
+        time_t           _myRestartTimeInSecondsToday;
 
-        long             _myCheckMemoryTimeInSecondsToday;
+        time_t           _myCheckMemoryTimeInSecondsToday;
         unsigned int     _myMemoryThresholdTimed;
 
         // state

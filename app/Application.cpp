@@ -215,8 +215,8 @@ bool Application::setup(const dom::NodePtr & theAppNode) {
         std::string myRestartTime = (*theAppNode->childNode("RestartTime"))("#text").nodeValue();
         std::string myHours = myRestartTime.substr(0, myRestartTime.find_first_of(':'));
         std::string myMinutes = myRestartTime.substr(myRestartTime.find_first_of(':')+1, myRestartTime.length());
-        _myRestartTimeInSecondsToday = convertFromString<long>(myHours) * 3600;
-        _myRestartTimeInSecondsToday += convertFromString<long>(myMinutes) * 60;
+        _myRestartTimeInSecondsToday = convertFromString<time_t>(myHours) * 3600;
+        _myRestartTimeInSecondsToday += convertFromString<time_t>(myMinutes) * 60;
         _myRestartMode |= RESTARTTIME;
         AC_DEBUG <<"_myRestartTimeInSecondsToday : " << _myRestartTimeInSecondsToday;
     }
@@ -225,8 +225,8 @@ bool Application::setup(const dom::NodePtr & theAppNode) {
         std::string myCheckMemoryTime = (*theAppNode->childNode("CheckMemoryTime"))("#text").nodeValue();
         std::string myHours = myCheckMemoryTime.substr(0, myCheckMemoryTime.find_first_of(':'));
         std::string myMinutes = myCheckMemoryTime.substr(myCheckMemoryTime.find_first_of(':')+1, myCheckMemoryTime.length());
-        _myCheckMemoryTimeInSecondsToday = convertFromString<long>(myHours) * 3600;
-        _myCheckMemoryTimeInSecondsToday += convertFromString<long>(myMinutes) * 60;
+        _myCheckMemoryTimeInSecondsToday = convertFromString<time_t>(myHours) * 3600;
+        _myCheckMemoryTimeInSecondsToday += convertFromString<time_t>(myMinutes) * 60;
         _myRestartMode |= CHECKMEMORYTIME;
         AC_DEBUG <<"_myCheckMemoryTimeInSecondsToday : " << _myCheckMemoryTimeInSecondsToday;
     }
@@ -375,10 +375,10 @@ Application::checkHeartbeat() {
         time( &myCurrentSecondsSince_1_1_1970 );
 
         time_t myLastHeartbeatAge = myCurrentSecondsSince_1_1_1970 
-                                - convertFromString<long>(mySecondsSince1970Str);
+                                - convertFromString<time_t>(mySecondsSince1970Str);
         AC_DEBUG <<" myCurrentSecondsSince_1_1_1970 : " << myCurrentSecondsSince_1_1_1970 ;
         AC_DEBUG <<" last heartbeat sec since 1.1.70: "
-                 <<  convertFromString<long>(mySecondsSince1970Str) ;
+                 <<  convertFromString<time_t>(mySecondsSince1970Str) ;
         AC_DEBUG <<" last age : " << myLastHeartbeatAge ;
         if ( myLastHeartbeatAge > _myHeartbeatFrequency * _myAllowMissingHeartbeats) {
             _myHeartIsBroken = true;
