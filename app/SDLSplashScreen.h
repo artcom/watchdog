@@ -28,7 +28,7 @@
 // along with ART+COM Y60.  If not, see <http://www.gnu.org/licenses/>.
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 //
-// Description: TODO  
+// Description: shows an image during application-start and -restart using SDL
 //
 // Last Review: NEVER, NOONE
 //
@@ -56,61 +56,39 @@
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 */
 
-#ifndef INCL_UDPCOMMANDLISTENERTHREAD_H
-#define INCL_UDPCOMMANDLISTENERTHREAD_H
-
-
-class Projector;
-
-#include <asl/base/PosixThread.h>
-#include <asl/dom/Nodes.h>
-
-#include "Logger.h"
+#ifndef ac_watchdog_SDLSplashScreen_h
+#define ac_watchdog_SDLSplashScreen_h
 
 #include <string>
-#include <vector>
+#include <SDL/SDL.h>
 
-class Application;
-class UDPCommandListenerThread : public asl::PosixThread {
+class SDLSplashScreen {
     public:
-        UDPCommandListenerThread(std::vector<Projector *> theProjectors,
-                                 Application & theApplication,
-                                 const dom::NodePtr & theConfigNode,
-                                 Logger & theLogger);
-        virtual ~UDPCommandListenerThread();
-
-        void setSystemHaltCommand(const std::string & theSystemhaltCommand);
-        void setRestartAppCommand(const std::string & theRestartAppCommand);
-        void setSystemRebootCommand(const std::string & theSystemRebootCommand);
-        void setStopAppCommand(const std::string & theStopAppCommand);
-        void setStartAppCommand(const std::string & theStartAppCommand);
-    
-        void sendStatusMessage(const std::string & theMessage);
+        virtual     ~SDLSplashScreen();
+        void        enable(const std::string& theBMPFilePath, int theXPos, int theYPos);
+        void        disable();
+        void        show();
+        void        redraw();
+        void        hide();
+        bool        isEnabled();
+        
+        static SDLSplashScreen * getInstance();
+        
+    protected:
+        SDLSplashScreen();
+        
     private:
-        void run();
-        bool controlProjector(const std::string & theCommand);
+        template <class T>
+        void setSurfacePixels(T * theBmpPixel, T ** thePixels, SDL_Surface * theSurface, int theHeight, int theWidth);
         
-        void initiateShutdown();
-        void initiateReboot();
-
-        std::vector<Projector*> _myProjectors;
-        int                     _myUDPPort;
-        Application &           _myApplication;
-        Logger &                _myLogger;
-        bool                    _myPowerDownProjectorsOnHalt;
-        bool                    _myShutterCloseProjectorsOnStop;
-        bool                    _myShutterCloseProjectorsOnReboot;
-        std::string             _mySystemHaltCommand;
-        std::string             _myRestartAppCommand;
-        std::string             _mySystemRebootCommand;
-        std::string             _myStopAppCommand;
-        std::string             _myStartAppCommand;
+        static SDLSplashScreen * _instance;
         
-        // status report
-        std::string             _myStatusReportCommand;
-        std::string             _myStatusReceiverHost;
-        unsigned int            _myStatusReceiverPort;
-        unsigned int            _myStatusLoadingDelay;
+        SDL_Surface* _myImage;
+        SDL_Surface* _myScreen;
+        
+        bool         _myEnabled;
+        bool         _myShown;
 };
 
 #endif
+

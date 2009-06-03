@@ -117,7 +117,7 @@ class Application {
         bool     performECG() const;
         bool     restartedToday() const;
         std::string getHeartbeatFile() const;
-        time_t     getRestartTimeInSecondsToday() const;
+        long     getRestartTimeInSecondsToday() const;
         ProcessResult    getProcessResult() const;
         std::string getFilename() const;
         std::string getArguments() const; 
@@ -126,7 +126,7 @@ class Application {
         void setRestartedToday(bool theRestartedTodayFlag);       
 
         void setupEnvironment(const dom::NodePtr & theEnvironmentSettings);
-
+        long getRuntime();
 
     private:
         void setEnvironmentVariables();
@@ -150,9 +150,9 @@ class Application {
         unsigned int     _myRestartMemoryThreshold;
 
         std::string      _myRestartDay;
-        time_t           _myRestartTimeInSecondsToday;
+        long             _myRestartTimeInSecondsToday;
 
-        time_t           _myCheckMemoryTimeInSecondsToday;
+        long             _myCheckMemoryTimeInSecondsToday;
         unsigned int     _myMemoryThresholdTimed;
 
         // state

@@ -138,7 +138,7 @@ WatchDog::arm() {
         _myLogger.logToFile(std::string("Monitoring heartbeat file: ") + _myAppToWatch.getHeartbeatFile());
     }
 
-    if ( static_cast<time_t>(getElapsedSecondsToday()) >_myAppToWatch.getRestartTimeInSecondsToday()) {
+    if (getElapsedSecondsToday() > _myAppToWatch.getRestartTimeInSecondsToday()) {
         _myAppToWatch.setRestartedToday(true);
     }
 }
@@ -168,6 +168,11 @@ WatchDog::watch() {
             if (!_myAppToWatch.paused()) {
                 myReturnString = "Internal quit.";
                 _myLogger.logToFile( "Restarting application." );
+                
+                // loading message
+                if (_myUDPCommandListenerThread) {
+                    _myUDPCommandListenerThread->sendStatusMessage( "loading" );  
+                }
                 _myAppToWatch.launch();
             } else {
                 myReturnString = "Application paused.";
