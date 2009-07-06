@@ -50,6 +50,9 @@
     <Application binary="calc.exe" directory="">
         <EnvironmentVariables>
             <!--<EnvironmentVariable name="key"><![CDATA[value]]></EnvironmentVariable>-->
+            <EnvironmentVariable name="AC_LOG_CONSOLE_FORMAT">
+    			<![CDATA[FULL]]>
+    		</EnvironmentVariable>            
         </EnvironmentVariables>
         <Arguments>
             <Argument>test.txt</Argument>
