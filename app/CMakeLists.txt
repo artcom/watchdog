@@ -35,7 +35,7 @@ PdF1
 
 
 ac_add_executable(
-    asl-watchdog
+    watchdog
     SOURCES ${SOURCES}
     HEADERS ${HEADERS}  
     DEPENDS aslbase aslnet asldom aslserial paintlib
