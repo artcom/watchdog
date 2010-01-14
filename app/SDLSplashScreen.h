@@ -5,8 +5,8 @@
 // These coded instructions, statements, and computer programs contain
 // proprietary information of ART+COM AG Berlin, and are copy protected
 // by law. They may be used, modified and redistributed under the terms
-// of GNU General Public License referenced below. 
-//    
+// of GNU General Public License referenced below.
+//
 // Alternative licensing without the obligations of the GPL is
 // available upon request.
 //
@@ -51,7 +51,7 @@
 //
 //    overall review status  : unknown
 //
-//    recommendations: 
+//    recommendations:
 //       - unknown
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 */
@@ -71,21 +71,21 @@ class SDLSplashScreen {
         void        redraw();
         void        hide();
         bool        isEnabled();
-        
+
         static SDLSplashScreen * getInstance();
-        
+
     protected:
         SDLSplashScreen();
-        
+
     private:
         template <class T>
         void setSurfacePixels(T * theBmpPixel, T ** thePixels, SDL_Surface * theSurface, int theHeight, int theWidth);
-        
+
         static SDLSplashScreen * _instance;
-        
+
         SDL_Surface* _myImage;
         SDL_Surface* _myScreen;
-        
+
         bool         _myEnabled;
         bool         _myShown;
 };

@@ -5,8 +5,8 @@
 // These coded instructions, statements, and computer programs contain
 // proprietary information of ART+COM AG Berlin, and are copy protected
 // by law. They may be used, modified and redistributed under the terms
-// of GNU General Public License referenced below. 
-//    
+// of GNU General Public License referenced below.
+//
 // Alternative licensing without the obligations of the GPL is
 // available upon request.
 //
@@ -28,7 +28,7 @@
 // along with ART+COM Y60.  If not, see <http://www.gnu.org/licenses/>.
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 //
-// Description: TODO  
+// Description: TODO
 //
 // Last Review: NEVER, NOONE
 //
@@ -51,7 +51,7 @@
 //
 //    overall review status  : unknown
 //
-//    recommendations: 
+//    recommendations:
 //       - unknown
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 */
@@ -84,12 +84,12 @@ class UDPCommandListenerThread : public asl::PosixThread {
         void setSystemRebootCommand(const std::string & theSystemRebootCommand);
         void setStopAppCommand(const std::string & theStopAppCommand);
         void setStartAppCommand(const std::string & theStartAppCommand);
-    
+
         void sendStatusMessage(const std::string & theMessage);
     private:
         void run();
         bool controlProjector(const std::string & theCommand);
-        
+
         void initiateShutdown();
         void initiateReboot();
 
@@ -105,7 +105,7 @@ class UDPCommandListenerThread : public asl::PosixThread {
         std::string             _mySystemRebootCommand;
         std::string             _myStopAppCommand;
         std::string             _myStartAppCommand;
-        
+
         // status report
         std::string             _myStatusReportCommand;
         std::string             _myStatusReceiverHost;

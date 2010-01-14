@@ -5,8 +5,8 @@
 // These coded instructions, statements, and computer programs contain
 // proprietary information of ART+COM AG Berlin, and are copy protected
 // by law. They may be used, modified and redistributed under the terms
-// of GNU General Public License referenced below. 
-//    
+// of GNU General Public License referenced below.
+//
 // Alternative licensing without the obligations of the GPL is
 // available upon request.
 //
@@ -28,7 +28,7 @@
 // along with ART+COM Y60.  If not, see <http://www.gnu.org/licenses/>.
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 //
-// Description: TODO  
+// Description: TODO
 //
 // Last Review: NEVER, NOONE
 //
@@ -51,7 +51,7 @@
 //
 //    overall review status  : unknown
 //
-//    recommendations: 
+//    recommendations:
 //       - unknown
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 */
@@ -99,7 +99,7 @@ using namespace std;
 
 
 void initiateSystemReboot() {
-#ifdef WIN32 
+#ifdef WIN32
     HANDLE hToken;
     TOKEN_PRIVILEGES tkp;
 
@@ -213,13 +213,13 @@ ProcessResult waitForApp( const ProcessInfo & theProcessInfo, int theTimeout, Lo
     if (myResult == theProcessInfo) {
         std::ostringstream myOss;
         if (WIFEXITED(myStatus)) {
-            myOss << "Process exited with status " << WEXITSTATUS(myStatus) 
+            myOss << "Process exited with status " << WEXITSTATUS(myStatus)
 	    	  << ".";
             theLogger.logToFile(myOss.str());
             return PR_TERMINATED;
         } else if (WIFSIGNALED(myStatus)) {
 	        int mySignal = WTERMSIG(myStatus);
-            myOss << "Process terminated with signal " << mySignal 
+            myOss << "Process terminated with signal " << mySignal
 	    	  << " (" << strsignal(mySignal) << ").";
             theLogger.logToFile(myOss.str());
             return PR_TERMINATED;
@@ -231,11 +231,11 @@ ProcessResult waitForApp( const ProcessInfo & theProcessInfo, int theTimeout, Lo
 #endif
 }
 
-bool launchApp( const std::string & theFileName, 
+bool launchApp( const std::string & theFileName,
                 const std::vector<std::string> & theArguments,
-                const std::string & theWorkingDirectory, 
-                ProcessInfo & theProcessInfo) 
-{ 
+                const std::string & theWorkingDirectory,
+                ProcessInfo & theProcessInfo)
+{
 #ifdef WIN32
     STARTUPINFO StartupInfo = {
         sizeof(STARTUPINFO),
@@ -252,8 +252,8 @@ bool launchApp( const std::string & theFileName,
 
     return 0 != CreateProcess(NULL, &(myCommandLine[0]),
                               NULL, NULL, TRUE, 0,
-                              NULL, 
-                              theWorkingDirectory.empty() ? NULL : theWorkingDirectory.c_str(), 
+                              NULL,
+                              theWorkingDirectory.empty() ? NULL : theWorkingDirectory.c_str(),
                               &StartupInfo,
                               &theProcessInfo);
 
@@ -274,7 +274,7 @@ bool launchApp( const std::string & theFileName,
         std::cerr << theArguments[i] << " ";
     }
     if ( ! theWorkingDirectory.empty() ) {
-        std::cerr << "in directory: '" << theWorkingDirectory << "'";    
+        std::cerr << "in directory: '" << theWorkingDirectory << "'";
     }
     myArgv.push_back(NULL);
     std::cerr << std::endl;
@@ -282,7 +282,7 @@ bool launchApp( const std::string & theFileName,
         if (chdir( theWorkingDirectory.c_str() ) < 0) {
             dumpLastError( std::string("chdir('") + theWorkingDirectory + "')" );
             std::abort();
-        }    
+        }
     }
     execvp( theFileName.c_str(), &myArgv[0] );
     dumpLastError(theFileName);
@@ -293,7 +293,7 @@ bool launchApp( const std::string & theFileName,
 }
 
 void closeApp( const std::string & theWindowTitle, const ProcessInfo & theProcessInfo,
-               Logger & theLogger) 
+               Logger & theLogger)
 {
 #ifdef WIN32
     // Send WM_CLOSE to window
@@ -337,7 +337,7 @@ void closeApp( const std::string & theWindowTitle, const ProcessInfo & theProces
             theLogger.logToFile("Sending SIGKILL...");
             kill( theProcessInfo, SIGKILL );
             break;
-        case PR_TERMINATED: 
+        case PR_TERMINATED:
             theLogger.logToFile("O.k., terminated.");
             break;
         default:
@@ -355,7 +355,7 @@ ErrorNumber getLastErrorNumber() {
     return GetLastError();
 #elif defined(LINUX) || defined(OSX)
     return errno;
-#else 
+#else
 #error Your platform is missing!
 #endif
 }
@@ -380,7 +380,7 @@ std::string getLastError( ErrorNumber theErrorNumber) {
         return myResult;
 #elif defined(LINUX) || defined(OSX)
         return strerror( theErrorNumber );
-#else 
+#else
 #error Your platform is missing!
 #endif
 }
@@ -395,6 +395,6 @@ void
 dumpLastError(const string& theErrorLocation) {
     ErrorNumber myErrorNumber = getLastErrorNumber();
     cerr << "Warning: \"" << theErrorLocation << "\" failed.\n";
-    cerr << "         Error was \"" << getLastError( myErrorNumber ) 
+    cerr << "         Error was \"" << getLastError( myErrorNumber )
          << "\" with code : " << myErrorNumber << endl;
 }

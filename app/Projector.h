@@ -5,8 +5,8 @@
 // These coded instructions, statements, and computer programs contain
 // proprietary information of ART+COM AG Berlin, and are copy protected
 // by law. They may be used, modified and redistributed under the terms
-// of GNU General Public License referenced below. 
-//    
+// of GNU General Public License referenced below.
+//
 // Alternative licensing without the obligations of the GPL is
 // available upon request.
 //
@@ -28,7 +28,7 @@
 // along with ART+COM Y60.  If not, see <http://www.gnu.org/licenses/>.
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 //
-// Description: TODO  
+// Description: TODO
 //
 // Last Review: NEVER, NOONE
 //
@@ -51,7 +51,7 @@
 //
 //    overall review status  : unknown
 //
-//    recommendations: 
+//    recommendations:
 //       - unknown
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 */
@@ -80,16 +80,16 @@ public:
      * \note DEPRECATED! Only still used by the tests.
      * \param theType Type string i.e. nec, panasonic
      * \param thePort UDP-port
-     * \return 
-     */                            
+     * \return
+     */
     static Projector* getProjector(const std::string& theType, int thePort, int theBaud = -1);
-    
+
     /**
      * Factory method to get a projector
      * \param theProjectorNode XML-Node from the config file
-     * \param theLogger 
-     * \return 
-     */                            
+     * \param theLogger
+     * \return
+     */
     static Projector* getProjector(const dom::NodePtr & theProjectorNode, Logger* theLogger);
 
     explicit Projector(int thePortNumber, unsigned theBaud);
@@ -100,7 +100,7 @@ public:
     /// Logger.
     void setLogger(Logger* theLogger) { _myLogger = theLogger; }
     Logger* getLogger() const { return _myLogger; }
-    
+
     /// Configure projector.
     virtual void configure(const dom::NodePtr & theConfigNode);
 
@@ -122,28 +122,28 @@ public:
         VIEWER,
         BNC
     };
-    
+
     /**
      * Select the projector's input source
      * \param theSource A video source
-     */                  
+     */
     void selectInput(const std::string& theSource);
 
     /**
      * Set input to initial value
-     */         
+     */
     virtual void selectInput() {
         if (_myInitialInputSource != NONE) {
             selectInput(_myInitialInputSource);
         }
     };
-    
+
     virtual void selectInput(VideoSource theSource) = 0;
 
     /**
      * Set the lamps mode
-     * \param theLampsMask 
-     */                  
+     * \param theLampsMask
+     */
     virtual void lamps(unsigned theLampsMask) {}
 
     /// Lamp power.
@@ -156,12 +156,12 @@ public:
     void setCommandEnable(bool theEnableFlag) { _myCommandEnable = theEnableFlag; }
     bool getCommandEnable() const { return _myCommandEnable; }
     void setInitialInputSource(const VideoSource theInput) { _myInitialInputSource = theInput; }
-    
+
     virtual bool command(const std::string & theCommand);
 
     /// Projector status update.
     virtual void update() {}
-    
+
 
 protected:
     std::string _myDescription;
@@ -173,7 +173,7 @@ protected:
     VideoSource getEnumFromString(const std::string& theSource);
     std::string getStringFromEnum(const Projector::VideoSource theSource);
     unsigned getBaudRate() const { return _myBaud; }
-    
+
 private:
     asl::SerialDevice * _mySerialDevice;
     Logger *            _myLogger;

@@ -5,8 +5,8 @@
 // These coded instructions, statements, and computer programs contain
 // proprietary information of ART+COM AG Berlin, and are copy protected
 // by law. They may be used, modified and redistributed under the terms
-// of GNU General Public License referenced below. 
-//    
+// of GNU General Public License referenced below.
+//
 // Alternative licensing without the obligations of the GPL is
 // available upon request.
 //
@@ -28,7 +28,7 @@
 // along with ART+COM Y60.  If not, see <http://www.gnu.org/licenses/>.
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 //
-// Description: TODO  
+// Description: TODO
 //
 // Last Review: NEVER, NOONE
 //
@@ -51,7 +51,7 @@
 //
 //    overall review status  : unknown
 //
-//    recommendations: 
+//    recommendations:
 //       - unknown
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 */
@@ -103,7 +103,7 @@ PanasonicProjector::configure(const dom::NodePtr & theConfigNode)
     if ((myNode = theConfigNode->childNode("FirstID"))) {
         _myFirstID = asl::as<int>(myNode->childNode(0)->nodeValue());
     }
-    
+
     if ((myNode = theConfigNode->childNode("PowerDelay"))) {
         _myPowerDelay = asl::as<int>(myNode->childNode(0)->nodeValue());
     }
@@ -111,7 +111,7 @@ PanasonicProjector::configure(const dom::NodePtr & theConfigNode)
     if ((myNode = theConfigNode->childNode("ReadTimeout"))) {
         _myReadTimeout = asl::as<int>(myNode->childNode(0)->nodeValue());
     }
-        
+
     if ((myNode = theConfigNode->childNode("Input"))) {
         Projector::selectInput(myNode->childNode(0)->nodeValue());
     }
@@ -119,7 +119,7 @@ PanasonicProjector::configure(const dom::NodePtr & theConfigNode)
     if ((myNode = theConfigNode->childNode("Lamps"))) {
         lamps(asl::as<int>(myNode->childNode(0)->nodeValue()));
     }
-    
+
     if ((myNode = theConfigNode->childNode("LampPower"))) {
         // OLP:0 = High, OLP:1 = Low
     }
@@ -219,7 +219,7 @@ PanasonicProjector::update()
     sendCommand("QTM","1",0);
     parseResponse("%04d", "Output Air", "C");
 #endif
-    
+
     // temp optical module
     sendCommand("QTM","2",0);
     parseResponse("%04d", "Optical Module", "C");
@@ -264,7 +264,7 @@ PanasonicProjector::sendCommandSingle(const string & theCommand, const string & 
     if (theAddress != ~0u) {
         SNPRINTF(myAddress, sizeof(myAddress), "%02d", theAddress+_myFirstID);
     }
- 
+
     // assemble buffer
     char myBuf[256];
     SNPRINTF(myBuf, sizeof(myBuf), "%sAD%s;%s", STX, myAddress, theCommand.c_str());
@@ -290,7 +290,7 @@ PanasonicProjector::readFromDevice(unsigned theTimeout)
     char myBuf[256] = "";
     unsigned myTimeout = 0;
     while (myTimeout < theTimeout) {
-        
+
         size_t myBufLen = sizeof(myBuf);
         bool myReadErr = getDevice()->read(myBuf, myBufLen);
         if (myReadErr) {

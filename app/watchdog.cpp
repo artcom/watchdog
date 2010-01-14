@@ -5,8 +5,8 @@
 // These coded instructions, statements, and computer programs contain
 // proprietary information of ART+COM AG Berlin, and are copy protected
 // by law. They may be used, modified and redistributed under the terms
-// of GNU General Public License referenced below. 
-//    
+// of GNU General Public License referenced below.
+//
 // Alternative licensing without the obligations of the GPL is
 // available upon request.
 //
@@ -28,7 +28,7 @@
 // along with ART+COM Y60.  If not, see <http://www.gnu.org/licenses/>.
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 //
-// Description: TODO  
+// Description: TODO
 //
 // Last Review: NEVER, NOONE
 //
@@ -51,7 +51,7 @@
 //
 //    overall review status  : unknown
 //
-//    recommendations: 
+//    recommendations:
 //       - unknown
 // __ ___ ____ _____ ______ _______ ________ _______ ______ _____ ____ ___ __
 */
@@ -161,17 +161,17 @@ WatchDog::watch() {
                 asl::msleep(500);
             }
         }
-        
+
         // Main loop
         for (;;) {
             std::string myReturnString;
             if (!_myAppToWatch.paused()) {
                 myReturnString = "Internal quit.";
                 _myLogger.logToFile( "Restarting application." );
-                
+
                 // loading message
                 if (_myUDPCommandListenerThread) {
-                    _myUDPCommandListenerThread->sendStatusMessage( "loading" );  
+                    _myUDPCommandListenerThread->sendStatusMessage( "loading" );
                 }
                 _myAppToWatch.launch();
             } else {
@@ -179,7 +179,7 @@ WatchDog::watch() {
             }
 
             std::string myRestartMessage = "Application shutdown";
-      
+
             while (!_myAppToWatch.paused() && _myAppToWatch.getProcessResult() == PR_RUNNING) {
                 // update projector state
                 for (unsigned i = 0; i < _myProjectors.size(); ++i) {
@@ -193,27 +193,27 @@ WatchDog::watch() {
                 // system halt & reboot
                 checkForHalt();
                 checkForReboot();
-                
+
                 if (_myAppToWatch.checkForRestart(myRestartMessage)) {
                     break;
                 }
-                
+
             }
-            
+
             _myAppToWatch.terminate(myRestartMessage, false);
 
             _myLogger.logToFile(_myAppToWatch.getFilename() + string(" exited: ") + myReturnString);
 
             unsigned myRestartDelay = _myAppToWatch.getRestartDelay();
-            
+
             if (!_myAppToWatch.paused()) {
-                
+
                 cerr << "Watchdog - Restarting application in " << myRestartDelay << " seconds" << endl;
                 for (unsigned i = 0; i < myRestartDelay * 2; ++i) {
                     cerr << ".";
                     asl::msleep(500);
                 }
-                
+
                 cerr << endl;
             } else {
                 cerr << "Watchdog - Application is currently paused" << endl;
@@ -308,7 +308,7 @@ WatchDog::init(dom::Document & theConfigDoc) {
                     }
                     AC_DEBUG <<"Found " << _myProjectors.size() << " projectors";
                 }
-                
+
                 _myUDPCommandListenerThread = new UDPCommandListenerThread(_myProjectors, _myAppToWatch, myUdpControlNode, _myLogger);
             }
 
@@ -333,14 +333,14 @@ WatchDog::init(dom::Document & theConfigDoc) {
             }
 
             // Setup application
-            if (myConfigNode->childNode("Application")) { 
+            if (myConfigNode->childNode("Application")) {
                 const dom::NodePtr & myApplicationNode = myConfigNode->childNode("Application");
-                       
+
                 if (!_myAppToWatch.setup(myConfigNode->childNode("Application"))) {
                     return false;
                 }
-                
-		
+
+
                 // WaitingScreen setup
                 if (myApplicationNode->childNode("WaitingScreenImage")) {
                     std::string myWaitingScreenPath = asl::expandEnvironment((*myApplicationNode->childNode("WaitingScreenImage"))("#text").nodeValue());
@@ -357,9 +357,9 @@ WatchDog::init(dom::Document & theConfigDoc) {
                         myWaitingScreenPosY = myValue;
                     }
                 }
-            } 
+            }
         }
-        
+
     } catch (const asl::Exception & ex) {
         cerr << "### Exception: " << ex;
     } catch (...) {
@@ -421,7 +421,7 @@ main(int argc, char* argv[] ) {
 #ifndef WIN32
     asl::initSignalHandling();
 #endif
-    
+
     WatchDog myHasso;
     bool mySuccess = myHasso.init(myConfigDoc);
 
