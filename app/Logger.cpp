@@ -105,7 +105,7 @@ Logger::logToFile(const string& theMessage) {
         time(&myTime);
         struct tm * myPrintableTime = localtime(&myTime);
         (*_myFile) << asctime(myPrintableTime)
-                   << "threadid: " << std::hex << (unsigned int)pthread_self() << std::dec << "\n"
+                   << "threadid: " << std::hex << (size_t)pthread_self() << std::dec << "\n"
                    << theMessage << "\n"
                    << "---------------------------------------------------------------------" << endl;
     }
