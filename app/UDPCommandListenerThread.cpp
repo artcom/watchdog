@@ -305,7 +305,7 @@ UDPCommandListenerThread::run() {
                 if ( myProcessResult == PR_FAILED ) {
                     myMessage = "error application launch failed";
                 } else if ( myProcessResult == PR_RUNNING ) {
-                    myMessage = (_myApplication.getRuntime() > _myStatusLoadingDelay)?"ok":"loading";
+                    myMessage = (static_cast<unsigned>(_myApplication.getRuntime()) > _myStatusLoadingDelay)?"ok":"loading";
                 } else if ( myProcessResult == PR_TERMINATED ) {
                     myMessage = "error application terminated";
                 }
