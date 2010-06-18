@@ -85,7 +85,6 @@ class UDPCommandListenerThread : public asl::PosixThread {
         void setStopAppCommand(const std::string & theStopAppCommand);
         void setStartAppCommand(const std::string & theStartAppCommand);
 
-        void sendStatusMessage(const std::string & theMessage);
     private:
         void run();
         bool controlProjector(const std::string & theCommand);
@@ -108,8 +107,6 @@ class UDPCommandListenerThread : public asl::PosixThread {
 
         // status report
         std::string             _myStatusReportCommand;
-        std::string             _myStatusReceiverHost;
-        unsigned int            _myStatusReceiverPort;
         unsigned int            _myStatusLoadingDelay;
 };
 

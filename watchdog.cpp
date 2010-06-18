@@ -169,10 +169,6 @@ WatchDog::watch() {
                 myReturnString = "Internal quit.";
                 _myLogger.logToFile( "Restarting application." );
 
-                // loading message
-                if (_myUDPCommandListenerThread) {
-                    _myUDPCommandListenerThread->sendStatusMessage( "loading" );
-                }
                 _myAppToWatch.launch();
             } else {
                 myReturnString = "Application paused.";

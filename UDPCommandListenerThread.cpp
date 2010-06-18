@@ -101,8 +101,6 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
     _myStartAppCommand(""),
 
     _myStatusReportCommand(""),
-    _myStatusReceiverHost(),
-    _myStatusReceiverPort(0),
     _myStatusLoadingDelay(0)
 {
     // check for UDP port
@@ -165,11 +163,9 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
         const dom::NodePtr & myStatusReportNode = theConfigNode->childNode("StatusReport");
 
         _myStatusReportCommand = myStatusReportNode->getAttributeString("command");
-        _myStatusReceiverHost  = myStatusReportNode->getAttributeString("host");
-        _myStatusReceiverPort  = asl::as<unsigned int>( myStatusReportNode->getAttributeString("port") );
         _myStatusLoadingDelay  = asl::as<unsigned int>( myStatusReportNode->getAttributeString("loadingtime") );
 
-        AC_DEBUG << "_myStatusReportNode: " << _myStatusReportCommand << ": status will be send to: '" << _myStatusReceiverHost << ":" << _myStatusReceiverPort << "'";
+        AC_DEBUG << "_myStatusReportNode: " << _myStatusReportCommand << ".";
     }
 
     if (_myProjectors.size() > 0 ) {
@@ -260,26 +256,37 @@ UDPCommandListenerThread::run() {
         UDPSocket myUDPServer( INADDR_ANY, static_cast<asl::Unsigned16>(_myUDPPort) );
 
         for (;;) {
+            asl::Unsigned32 clientHost;
+            asl::Unsigned16 clientPort;
             char myInputBuffer[2048];
-            unsigned myBytesRead = myUDPServer.receiveFrom(0,0,myInputBuffer,sizeof(myInputBuffer)-1);
+            unsigned myBytesRead = myUDPServer.receiveFrom(
+                    &clientHost, &clientPort,
+                    myInputBuffer,sizeof(myInputBuffer)-1);
             myInputBuffer[myBytesRead] = 0;
             std::istringstream myIss(myInputBuffer);
             std::string myCommand;
             std::getline(myIss, myCommand);
-            cerr << "Received command: " << myCommand << "\nRestart App Command: " << _myRestartAppCommand << endl;
-            if (isCommand(myCommand, _mySystemHaltCommand)) {
+            std::string myMessage;
+            if (isCommand(myCommand, std::string("ping"))) {
+                myMessage = "pong";
+            } else if (isCommand(myCommand, _mySystemHaltCommand)) {
                 cerr << "Client received halt packet" << endl;
                 _myLogger.logToFile( string("Shutdown from Network") );
                 _myLogger.closeLogFile();
+                myUDPServer.sendTo(clientHost, clientPort,
+                        _mySystemHaltCommand.c_str(), _mySystemHaltCommand.size());
                 initiateShutdown();
             } else if (isCommand(myCommand, _mySystemRebootCommand)) {
                 cerr << "Client received reboot packet" << endl;
                 _myLogger.logToFile( string("Reboot from Network" ));
                 _myLogger.closeLogFile();
+                myUDPServer.sendTo(clientHost, clientPort,
+                        _mySystemRebootCommand.c_str(), _mySystemRebootCommand.size());
                 initiateReboot();
             } else if (isCommand(myCommand, _myRestartAppCommand)) {
                 cerr << "Client received restart application packet" << endl;
                 _myApplication.restart();
+                myMessage = _myRestartAppCommand;
             } else if (isCommand(myCommand, _myStopAppCommand)) {
                 cerr << "Client received stop application packet" << endl;
                 _myLogger.logToFile( string( "Stop application from Network" ));
@@ -288,6 +295,7 @@ UDPCommandListenerThread::run() {
                     controlProjector("projector_shutter_close");
                 }
                 _myApplication.setPaused(true);
+                myMessage = _myStopAppCommand;
             } else if (isCommand(myCommand, _myStartAppCommand)) {
                 cerr << "Client received start application packet" << endl;
                 _myLogger.logToFile( string( "Start application from Network" ));
@@ -296,12 +304,12 @@ UDPCommandListenerThread::run() {
                     // open shutter on all connected projectors
                     controlProjector("projector_shutter_open");
                 }
+                myMessage = _myStartAppCommand;
             } else if (isCommand(myCommand, _myStatusReportCommand)) {
                 cerr << "Client received status report request" << endl;
 
                 ProcessResult myProcessResult = _myApplication.getProcessResult();
 
-                std::string myMessage = "undefined";
                 if ( myProcessResult == PR_FAILED ) {
                     myMessage = "error application launch failed";
                 } else if ( myProcessResult == PR_RUNNING ) {
@@ -309,9 +317,6 @@ UDPCommandListenerThread::run() {
                 } else if ( myProcessResult == PR_TERMINATED ) {
                     myMessage = "error application terminated";
                 }
-
-                sendStatusMessage( myMessage );
-
             } else if (controlProjector(myCommand) == true) {
                 // pass
             } else {
@@ -320,6 +325,10 @@ UDPCommandListenerThread::run() {
                 myOss << "### UDPHaltListener: Unexpected packet '" << myCommand
                     << "'. Ignoring";
                 _myLogger.logToFile( myOss.str() );
+            }
+            if ( ! myMessage.empty()) {
+                myUDPServer.sendTo(clientHost, clientPort,
+                        myMessage.c_str(), myMessage.size());
             }
         }
     } catch (SocketException & se) {
@@ -330,29 +339,4 @@ UDPCommandListenerThread::run() {
     }
     cerr << "stopped udp command listener thread.\n";
     _myLogger.logToFile( string( "Stopped command listener thread!" ) );
-}
-
-void
-UDPCommandListenerThread::sendStatusMessage( const std::string & theMessage ) {
-    if ( _myStatusReceiverHost == "" || _myStatusReceiverPort == 0 ) {
-        return;
-    }
-
-    // try to find a free client port between serverPort+1 and MAX_PORT
-    UDPSocket * myUDPClient = 0;
-    for (asl::Unsigned16 clientPort = 5000; clientPort <= 6000; clientPort++)
-    {
-        try {
-            myUDPClient = new UDPSocket( INADDR_ANY, clientPort );
-            break;
-        }
-        catch (SocketException & se)
-        {
-            cerr << "TestSocket::UDPTest() " << "failed to listen on port " << clientPort << ":" << se.where() << endl;
-            myUDPClient = 0;
-        }
-    }
-
-    asl::Unsigned32 myHostAddress = getHostAddress( _myStatusReceiverHost.c_str() );
-    myUDPClient->sendTo( myHostAddress, static_cast<asl::Unsigned16>( _myStatusReceiverPort ), theMessage.c_str(), theMessage.size() );
 }
