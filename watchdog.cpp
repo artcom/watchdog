@@ -98,9 +98,10 @@ using namespace std;
 const string ourDefaultConfigFile = "watchdog.xml";
 
 asl::Arguments ourArguments;
-const asl::Arguments::AllowedOption ourAllowedOptions[] = {
-    {"--configfile", "XML configuration file"},
-    {"--no_restart", "start only once, do not restart"},
+const asl::Arguments::AllowedOptionWithDocumentation ourAllowedOptions[] = {
+    {"--configfile", "weatchdog.xml", "XML configuration file"},
+    {"--no_restart", "", "start only once, do not restart"},
+    {"--help", "", "print help"},    
     {"", ""}
 };
 
@@ -403,12 +404,16 @@ main(int argc, char* argv[] ) {
     SetErrorMode(SEM_NOGPFAULTERRORBOX);
 #endif
 
-    ourArguments.addAllowedOptions(ourAllowedOptions);
+    ourArguments.addAllowedOptionsWithDocumentation(ourAllowedOptions);
     if (!ourArguments.parse(argc, argv)) {
         return 0;
     }
     bool myRestartAppFlag = true;
     dom::Document myConfigDoc;
+    if (ourArguments.haveOption("--help")) {
+            printUsage();
+            return -1;
+    }
     if (ourArguments.haveOption("--no_restart")) {
         myRestartAppFlag = false;
     }
