@@ -85,7 +85,7 @@ class Projector;
 class WatchDog {
 public:
     WatchDog();
-    bool init(dom::Document & theConfigDoc);
+    bool init(dom::Document & theConfigDoc, bool theRestartAppFlag);
     void arm();
     bool watch();
 
@@ -107,4 +107,5 @@ private:
     long                _myRebootTimeInSecondsToday;
     long                _myHaltTimeInSecondsToday;
     bool                _myApplicationPaused;
+    bool                _myRestartAppFlag;
 };

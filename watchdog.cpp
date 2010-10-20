@@ -100,6 +100,7 @@ const string ourDefaultConfigFile = "watchdog.xml";
 asl::Arguments ourArguments;
 const asl::Arguments::AllowedOption ourAllowedOptions[] = {
     {"--configfile", "XML configuration file"},
+    {"--no_restart", "start only once, do not restart"},
     {"", ""}
 };
 
@@ -109,7 +110,8 @@ WatchDog::WatchDog()
       _myUDPCommandListenerThread(0),
       _myPowerUpProjectorsOnStartup(true),
       _myRebootTimeInSecondsToday(-1),
-      _myHaltTimeInSecondsToday(-1)
+      _myHaltTimeInSecondsToday(-1),
+      _myRestartAppFlag(true)
 {
 }
 
@@ -200,6 +202,10 @@ WatchDog::watch() {
 
             _myLogger.logToFile(_myAppToWatch.getFilename() + string(" exited: ") + myReturnString);
 
+            if (!_myRestartAppFlag) {
+                _myLogger.logToFile(string("watchdog will stop working now "));
+                exit(0);
+            }
             unsigned myRestartDelay = _myAppToWatch.getRestartDelay();
 
             if (!_myAppToWatch.paused()) {
@@ -252,7 +258,8 @@ WatchDog::checkForHalt() {
 
 
 bool
-WatchDog::init(dom::Document & theConfigDoc) {
+WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
+    _myRestartAppFlag = theRestartAppFlag;
     try {
         if (theConfigDoc("WatchdogConfig")) {
             const dom::NodePtr & myConfigNode = theConfigDoc.childNode("WatchdogConfig");
@@ -400,8 +407,11 @@ main(int argc, char* argv[] ) {
     if (!ourArguments.parse(argc, argv)) {
         return 0;
     }
-
+    bool myRestartAppFlag = true;
     dom::Document myConfigDoc;
+    if (ourArguments.haveOption("--no_restart")) {
+        myRestartAppFlag = false;
+    }
     if (ourArguments.haveOption("--configfile")) {
         readConfigFile (myConfigDoc, ourArguments.getOptionArgument("--configfile"));
     } else {
@@ -419,7 +429,7 @@ main(int argc, char* argv[] ) {
 #endif
 
     WatchDog myHasso;
-    bool mySuccess = myHasso.init(myConfigDoc);
+    bool mySuccess = myHasso.init(myConfigDoc, myRestartAppFlag);
 
     if (mySuccess) {
         myHasso.arm();
