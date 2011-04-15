@@ -76,7 +76,8 @@ class UDPCommandListenerThread : public asl::PosixThread {
         UDPCommandListenerThread(std::vector<Projector *> theProjectors,
                                  Application & theApplication,
                                  const dom::NodePtr & theConfigNode,
-                                 Logger & theLogger);
+                                 Logger & theLogger, 
+                                 std::string & theShutdownCommand);
         virtual ~UDPCommandListenerThread();
 
         void setSystemHaltCommand(const std::string & theSystemhaltCommand);
@@ -108,6 +109,8 @@ class UDPCommandListenerThread : public asl::PosixThread {
         // status report
         std::string             _myStatusReportCommand;
         unsigned int            _myStatusLoadingDelay;
+        
+        std::string             _myShutdownCommand;
 };
 
 #endif

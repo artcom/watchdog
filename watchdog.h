@@ -94,6 +94,9 @@ private:
     std::string         _myLogFilename;
     int                 _myWatchFrequency;
 
+    std::string         _myStartupCommand;
+    std::string         _myShutdownCommand;
+
     Application         _myAppToWatch;
 
     UDPCommandListenerThread * _myUDPCommandListenerThread;

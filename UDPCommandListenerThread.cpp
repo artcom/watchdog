@@ -86,7 +86,8 @@ inline bool isCommand(const std::string & theReceivedCommand, const std::string 
 UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theProjectors,
                                                    Application & theApplication,
                                                    const dom::NodePtr & theConfigNode,
-                                                   Logger & theLogger)
+                                                   Logger & theLogger,
+                                                   std::string & theShutdownCommand)
 :   _myProjectors(theProjectors),
     _myUDPPort(2342),
     _myApplication(theApplication),
@@ -99,9 +100,9 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
     _mySystemRebootCommand(""),
     _myStopAppCommand(""),
     _myStartAppCommand(""),
-
     _myStatusReportCommand(""),
-    _myStatusLoadingDelay(0)
+    _myStatusLoadingDelay(0), 
+    _myShutdownCommand(theShutdownCommand)
 {
     // check for UDP port
     if (theConfigNode->getAttribute("port")) {
@@ -227,6 +228,11 @@ UDPCommandListenerThread::initiateShutdown() {
         // shutdown all connected projectors
         controlProjector("projector_off");
     }
+
+    if (_myShutdownCommand != "") {
+        system(_myShutdownCommand.c_str());
+    }
+
     initiateSystemShutdown();
 }
 
@@ -236,6 +242,10 @@ UDPCommandListenerThread::initiateReboot() {
     if (_myShutterCloseProjectorsOnReboot) {
         // close shutter on all connected projectors
         controlProjector("projector_shutter_close");
+    }
+
+    if (_myShutdownCommand != "") {
+        system(_myShutdownCommand.c_str());
     }
     initiateSystemReboot();
 }

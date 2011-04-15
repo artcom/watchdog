@@ -155,6 +155,12 @@ WatchDog::watch() {
             _myUDPCommandListenerThread->fork();
             asl::msleep(100);
         }
+        cerr << "startup command: \"" << _myStartupCommand << "\" return with " << endl;
+
+        if (_myStartupCommand != "") {
+            int myError = system(_myStartupCommand.c_str());
+            cerr << "startup command: \"" << _myStartupCommand << "\" return with " << myError << endl;
+        }
 
         unsigned myStartDelay = _myAppToWatch.getStartDelay();
         if (myStartDelay > 0) {
@@ -242,6 +248,11 @@ WatchDog::checkForReboot() {
     long myElapsedSecondsToday = getElapsedSecondsToday();
     if ((_myRebootTimeInSecondsToday!= -1) && (_myRebootTimeInSecondsToday< myElapsedSecondsToday) ) {
         if (myElapsedSecondsToday - _myRebootTimeInSecondsToday < (_myWatchFrequency * 3)) {
+            if (_myShutdownCommand != "") {
+                int myError = system(_myShutdownCommand.c_str());
+                cerr << "shutdown command: \"" << _myShutdownCommand << "\" return with " << myError << endl;
+            }
+            
             initiateSystemReboot();
         }
     }
@@ -252,6 +263,11 @@ WatchDog::checkForHalt() {
     long myElapsedSecondsToday = getElapsedSecondsToday();
     if ((_myHaltTimeInSecondsToday!= -1) && (_myHaltTimeInSecondsToday< myElapsedSecondsToday) ) {
         if (myElapsedSecondsToday - _myHaltTimeInSecondsToday < (_myWatchFrequency * 3)) {
+            if (_myShutdownCommand != "") {
+                int myError = system(_myShutdownCommand.c_str());
+                cerr << "shutdown command: \"" << _myShutdownCommand << "\" return with " << myError << endl;
+            }
+            
             initiateSystemShutdown();
         }
     }
@@ -296,6 +312,19 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                     return false;
                 }
             }
+            
+            // check for additional startup command
+            if (myConfigNode->childNode("PreStartupCommand")) {
+                _myStartupCommand = (*myConfigNode->childNode("PreStartupCommand"))("#text").nodeValue();
+                AC_DEBUG << "_myStartupCommand: " << _myStartupCommand;
+            }
+            
+            // check for additional shutdown command
+            if (myConfigNode->childNode("PreShutdownCommand")) {
+                _myShutdownCommand = (*myConfigNode->childNode("PreShutdownCommand"))("#text").nodeValue();
+                AC_DEBUG << "_myShutdownCommand: " << _myShutdownCommand;
+            }
+
 
             // Setup UDP control
             if (myConfigNode->childNode("UdpControl")) {
@@ -313,7 +342,8 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                     AC_DEBUG <<"Found " << _myProjectors.size() << " projectors";
                 }
 
-                _myUDPCommandListenerThread = new UDPCommandListenerThread(_myProjectors, _myAppToWatch, myUdpControlNode, _myLogger);
+                _myUDPCommandListenerThread = new UDPCommandListenerThread(_myProjectors, _myAppToWatch, 
+                                                        myUdpControlNode, _myLogger, _myShutdownCommand);
             }
 
             // check for system reboot time command configuration
@@ -335,7 +365,7 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 _myHaltTimeInSecondsToday += atoi(myMinutes.c_str()) * 60;
                 AC_DEBUG <<"_myHaltTimeInSecondsToday : " << _myHaltTimeInSecondsToday;
             }
-
+            
             // Setup application
             if (myConfigNode->childNode("Application")) {
                 const dom::NodePtr & myApplicationNode = myConfigNode->childNode("Application");
