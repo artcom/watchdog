@@ -99,7 +99,7 @@ const string ourDefaultConfigFile = "watchdog.xml";
 
 asl::Arguments ourArguments;
 const asl::Arguments::AllowedOptionWithDocumentation ourAllowedOptions[] = {
-    {"--configfile", "weatchdog.xml", "XML configuration file"},
+    {"--configfile", "watchdog.xml", "XML configuration file"},
     {"--no_restart", "", "start only once, do not restart"},
     {"--help", "", "print help"},    
     {"", ""}
