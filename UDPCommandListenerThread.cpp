@@ -230,7 +230,8 @@ UDPCommandListenerThread::initiateShutdown() {
     }
 
     if (_myShutdownCommand != "") {
-        system(_myShutdownCommand.c_str());
+        int myError = system(_myShutdownCommand.c_str());
+        cerr << "shutdown command: \"" << _myShutdownCommand << "\" return with " << myError << endl;
     }
 
     initiateSystemShutdown();
@@ -245,7 +246,8 @@ UDPCommandListenerThread::initiateReboot() {
     }
 
     if (_myShutdownCommand != "") {
-        system(_myShutdownCommand.c_str());
+        int myError = system(_myShutdownCommand.c_str());
+        cerr << "shutdown command: \"" << _myShutdownCommand << "\" return with " << myError << endl;
     }
     initiateSystemReboot();
 }

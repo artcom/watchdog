@@ -111,6 +111,5 @@ private:
 
     long                _myRebootTimeInSecondsToday;
     long                _myHaltTimeInSecondsToday;
-    bool                _myApplicationPaused;
     bool                _myRestartAppFlag;
 };

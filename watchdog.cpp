@@ -107,14 +107,16 @@ const asl::Arguments::AllowedOptionWithDocumentation ourAllowedOptions[] = {
 
 WatchDog::WatchDog()
     : _myWatchFrequency(30),
+      _myStartupCommand(""),
+      _myShutdownCommand(""),
+      _myApplicationTerminatedCommand(""),
+      _myIgnoreTerminateCmdOnUdpCmd(false),
       _myAppToWatch(_myLogger),
       _myUDPCommandListenerThread(0),
       _myPowerUpProjectorsOnStartup(true),
       _myRebootTimeInSecondsToday(-1),
       _myHaltTimeInSecondsToday(-1),
-      _myRestartAppFlag(true),
-      _myApplicationTerminatedCommand(""),
-      _myIgnoreTerminateCmdOnUdpCmd(false)
+      _myRestartAppFlag(true)
 {
 }
 
@@ -157,7 +159,6 @@ WatchDog::watch() {
             _myUDPCommandListenerThread->fork();
             asl::msleep(100);
         }
-        cerr << "startup command: \"" << _myStartupCommand << "\" return with " << endl;
 
         if (_myStartupCommand != "") {
             int myError = system(_myStartupCommand.c_str());
