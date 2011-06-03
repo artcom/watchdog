@@ -315,7 +315,7 @@ Application::checkForRestart( std::string & myRestartMessage ) {
         return true;
     }
     if (_myRecvRestart) {
-        myRestartMessage = "Received restart command.";
+        myRestartMessage = RECEIVED_RESTART_APP_STRING;//"Received restart command.";
         _myRecvRestart = false;
         return true;
     }

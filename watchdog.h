@@ -96,6 +96,8 @@ private:
 
     std::string         _myStartupCommand;
     std::string         _myShutdownCommand;
+    std::string         _myApplicationTerminatedCommand;
+    bool                _myIgnoreTerminateCmdOnUdpCmd;
 
     Application         _myAppToWatch;
 

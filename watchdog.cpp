@@ -112,7 +112,9 @@ WatchDog::WatchDog()
       _myPowerUpProjectorsOnStartup(true),
       _myRebootTimeInSecondsToday(-1),
       _myHaltTimeInSecondsToday(-1),
-      _myRestartAppFlag(true)
+      _myRestartAppFlag(true),
+      _myApplicationTerminatedCommand(""),
+      _myIgnoreTerminateCmdOnUdpCmd(false)
 {
 }
 
@@ -213,9 +215,17 @@ WatchDog::watch() {
                 _myLogger.logToFile(string("watchdog will stop working now "));
                 exit(0);
             }
+
             unsigned myRestartDelay = _myAppToWatch.getRestartDelay();
 
             if (!_myAppToWatch.paused()) {
+                if (_myApplicationTerminatedCommand != "") {
+                    if (!_myIgnoreTerminateCmdOnUdpCmd || myRestartMessage != RECEIVED_RESTART_APP_STRING) {
+                        _myLogger.logToFile(string("application terminated, send additional restart command: '") + _myApplicationTerminatedCommand + "'");
+                        int myError = system(_myApplicationTerminatedCommand.c_str());
+                        _myLogger.logToFile(string("application terminated, send additional restart command, returned with error: ") + asl::as_string(myError));
+                    }
+                }
 
                 cerr << "Watchdog - Restarting application in " << myRestartDelay << " seconds" << endl;
                 for (unsigned i = 0; i < myRestartDelay * 2; ++i) {
@@ -323,6 +333,15 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
             if (myConfigNode->childNode("PreShutdownCommand")) {
                 _myShutdownCommand = (*myConfigNode->childNode("PreShutdownCommand"))("#text").nodeValue();
                 AC_DEBUG << "_myShutdownCommand: " << _myShutdownCommand;
+            }
+
+            // check for application terminate command
+            if (myConfigNode->childNode("AppTerminateCommand")) {
+                if (myConfigNode->childNode("AppTerminateCommand")->getAttribute("ignoreOnUdpRestart")) {
+                    _myIgnoreTerminateCmdOnUdpCmd = asl::as<bool>(myConfigNode->childNode("AppTerminateCommand")->getAttribute("ignoreOnUdpRestart")->nodeValue());
+                }
+                _myApplicationTerminatedCommand = (*myConfigNode->childNode("AppTerminateCommand")).firstChild()->nodeValue();
+                AC_DEBUG << "_myApplicationTerminatedCommand: " << _myApplicationTerminatedCommand;
             }
 
 
