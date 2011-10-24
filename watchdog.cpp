@@ -390,26 +390,8 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
             if (myConfigNode->childNode("Application")) {
                 const dom::NodePtr & myApplicationNode = myConfigNode->childNode("Application");
 
-                if (!_myAppToWatch.setup(myConfigNode->childNode("Application"))) {
+                if (!_myAppToWatch.setup(myApplicationNode)) {
                     return false;
-                }
-
-
-                // WaitingScreen setup
-                if (myApplicationNode->childNode("WaitingScreenImage")) {
-                    std::string myWaitingScreenPath = asl::expandEnvironment((*myApplicationNode->childNode("WaitingScreenImage"))("#text").nodeValue());
-                    int myWaitingScreenPosX = 0;
-                    int myWaitingScreenPosY = 0;
-
-                    if (myApplicationNode->childNode("WaitingScreenPosX")) {
-                        int myValue = atoi(((*myApplicationNode->childNode("WaitingScreenPosX"))("#text").nodeValue()).c_str());
-                        myWaitingScreenPosX = myValue;
-                    }
-
-                    if (myApplicationNode->childNode("WaitingScreenPosY")) {
-                        int myValue = atoi(((*myApplicationNode->childNode("WaitingScreenPosY"))("#text").nodeValue()).c_str());
-                        myWaitingScreenPosY = myValue;
-                    }
                 }
             }
         }

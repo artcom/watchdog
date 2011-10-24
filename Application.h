@@ -96,7 +96,7 @@ enum RestartMode {
     CHECKMEMORYTIME = 16,
     CHECKTIMEDMEMORYTHRESHOLD = 32
 };
-static const char* RECEIVED_RESTART_APP_STRING = "Received restart command.";
+const char* const RECEIVED_RESTART_APP_STRING = "Received restart command.";
 
 class Application {
     public:
