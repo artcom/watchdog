@@ -80,14 +80,14 @@ class UDPCommandListenerThread : public asl::PosixThread {
                                  std::string & theShutdownCommand);
         virtual ~UDPCommandListenerThread();
 
-        void setSystemHaltCommand(const std::string & theSystemhaltCommand);
+        /*void setSystemHaltCommand(const std::string & theSystemhaltCommand);
         void setRestartAppCommand(const std::string & theRestartAppCommand);
         void setSystemRebootCommand(const std::string & theSystemRebootCommand);
         void setStopAppCommand(const std::string & theStopAppCommand);
-        void setStartAppCommand(const std::string & theStartAppCommand);
-
+        void setStartAppCommand(const std::string & theStartAppCommand);*/
     private:
         void run();
+        bool allowedIp(asl::Unsigned32 theHostAddress);
         bool controlProjector(const std::string & theCommand);
 
         void initiateShutdown();
@@ -111,6 +111,7 @@ class UDPCommandListenerThread : public asl::PosixThread {
         unsigned int            _myStatusLoadingDelay;
         
         std::string             _myShutdownCommand;
+        std::vector<asl::Unsigned32> _myAllowedIps;
 };
 
 #endif

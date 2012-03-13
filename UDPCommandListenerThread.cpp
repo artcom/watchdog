@@ -66,6 +66,7 @@
 #endif
 
 #include <asl/net/UDPSocket.h>
+#include <asl/net/net_functions.h>
 #include <asl/net/net.h>
 
 #include <iostream>
@@ -164,11 +165,23 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
         const dom::NodePtr & myStatusReportNode = theConfigNode->childNode("StatusReport");
 
         _myStatusReportCommand = myStatusReportNode->getAttributeString("command");
-        _myStatusLoadingDelay  = asl::as<unsigned int>( myStatusReportNode->getAttributeString("loadingtime") );
+        const dom::NodePtr & myAttribute = myStatusReportNode->getAttribute("loadingtime");
+        if (myAttribute) {
+            _myStatusLoadingDelay  = asl::as<unsigned int>( myAttribute->nodeValue());
+        }
 
-        AC_DEBUG << "_myStatusReportNode: " << _myStatusReportCommand << ".";
     }
-
+    if (theConfigNode->childNode("IpWhitlelist")) {
+        const dom::NodePtr & myIpWhitelistNode = theConfigNode->childNode("IpWhitlelist");
+        for (unsigned i = 0; i < myIpWhitelistNode->childNodesLength(); ++i) {
+            const dom::NodePtr & myIpWhitelistEntryNode = myIpWhitelistNode->childNode(i);
+            if (myIpWhitelistEntryNode->nodeType() == dom::Node::ELEMENT_NODE) {
+                std::string myAllowedIp = myIpWhitelistEntryNode->firstChild()->nodeValue();
+                AC_PRINT << "add ip '" << myAllowedIp << "' to udpcontrol whitelist";
+                _myAllowedIps.push_back(getHostAddress(myAllowedIp.c_str()));
+            }
+        }
+    }
     if (_myProjectors.size() > 0 ) {
         cout << "Projectors: " << endl;
         for (std::vector<Projector*>::size_type i = 0; i < _myProjectors.size(); i++) {
@@ -180,7 +193,7 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
 UDPCommandListenerThread::~UDPCommandListenerThread() {
 }
 
-void
+/*void
 UDPCommandListenerThread::setSystemHaltCommand(const string & theSystemhaltCommand) {
     _mySystemHaltCommand = theSystemhaltCommand;
 }
@@ -203,7 +216,7 @@ UDPCommandListenerThread::setStartAppCommand(const string & theStartAppCommand) 
 void
 UDPCommandListenerThread::setSystemRebootCommand(const string & theSystemRebootCommand) {
     _mySystemRebootCommand = theSystemRebootCommand;
-}
+}*/
 
 bool
 UDPCommandListenerThread::controlProjector(const std::string & theCommand)
@@ -252,6 +265,14 @@ UDPCommandListenerThread::initiateReboot() {
     initiateSystemReboot();
 }
 
+bool
+UDPCommandListenerThread::allowedIp(asl::Unsigned32 theHostAddress) {
+    if (_myAllowedIps.size() == 0 || std::find(_myAllowedIps.begin(), _myAllowedIps.end(), theHostAddress) != _myAllowedIps.end()) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 void
 UDPCommandListenerThread::run() {
@@ -274,73 +295,78 @@ UDPCommandListenerThread::run() {
             unsigned myBytesRead = myUDPServer.receiveFrom(
                     &clientHost, &clientPort,
                     myInputBuffer,sizeof(myInputBuffer)-1);
-            myInputBuffer[myBytesRead] = 0;
-            std::istringstream myIss(myInputBuffer);
-            std::string myCommand;
-            std::getline(myIss, myCommand);
-            std::string myMessage;
-            if (isCommand(myCommand, std::string("ping"))) {
-                myMessage = "pong";
-            } else if (isCommand(myCommand, _mySystemHaltCommand)) {
-                cerr << "Client received halt packet" << endl;
-                _myLogger.logToFile( string("Shutdown from Network") );
-                _myLogger.closeLogFile();
-                myUDPServer.sendTo(clientHost, clientPort,
-                        _mySystemHaltCommand.c_str(), _mySystemHaltCommand.size());
-                initiateShutdown();
-            } else if (isCommand(myCommand, _mySystemRebootCommand)) {
-                cerr << "Client received reboot packet" << endl;
-                _myLogger.logToFile( string("Reboot from Network" ));
-                _myLogger.closeLogFile();
-                myUDPServer.sendTo(clientHost, clientPort,
-                        _mySystemRebootCommand.c_str(), _mySystemRebootCommand.size());
-                initiateReboot();
-            } else if (isCommand(myCommand, _myRestartAppCommand)) {
-                cerr << "Client received restart application packet" << endl;
-                _myApplication.restart();
-                myMessage = _myRestartAppCommand;
-            } else if (isCommand(myCommand, _myStopAppCommand)) {
-                cerr << "Client received stop application packet" << endl;
-                _myLogger.logToFile( string( "Stop application from Network" ));
-                if (_myShutterCloseProjectorsOnStop) {
-                    // close shutter on all connected projectors
-                    controlProjector("projector_shutter_close");
-                }
-                _myApplication.setPaused(true);
-                myMessage = _myStopAppCommand;
-            } else if (isCommand(myCommand, _myStartAppCommand)) {
-                cerr << "Client received start application packet" << endl;
-                _myLogger.logToFile( string( "Start application from Network" ));
-                _myApplication.setPaused(false);
-                if (_myShutterCloseProjectorsOnStop) {
-                    // open shutter on all connected projectors
-                    controlProjector("projector_shutter_open");
-                }
-                myMessage = _myStartAppCommand;
-            } else if (isCommand(myCommand, _myStatusReportCommand)) {
-                cerr << "Client received status report request" << endl;
+            if(allowedIp(clientHost)) {
+                myInputBuffer[myBytesRead] = 0;
+                std::istringstream myIss(myInputBuffer);
+                std::string myCommand;
+                std::getline(myIss, myCommand);
+                std::string myMessage;
+                if (isCommand(myCommand, std::string("ping"))) {
+                    myMessage = "pong";
+                } else if (isCommand(myCommand, _mySystemHaltCommand)) {
+                    cerr << "Client received halt packet" << endl;
+                    _myLogger.logToFile( string("Shutdown from Network") );
+                    _myLogger.closeLogFile();
+                    myUDPServer.sendTo(clientHost, clientPort,
+                            _mySystemHaltCommand.c_str(), _mySystemHaltCommand.size());
+                    initiateShutdown();
+                } else if (isCommand(myCommand, _mySystemRebootCommand)) {
+                    cerr << "Client received reboot packet" << endl;
+                    _myLogger.logToFile( string("Reboot from Network" ));
+                    _myLogger.closeLogFile();
+                    myUDPServer.sendTo(clientHost, clientPort,
+                            _mySystemRebootCommand.c_str(), _mySystemRebootCommand.size());
+                    initiateReboot();
+                } else if (isCommand(myCommand, _myRestartAppCommand)) {
+                    cerr << "Client received restart application packet" << endl;
+                    _myApplication.restart();
+                    myMessage = _myRestartAppCommand;
+                } else if (isCommand(myCommand, _myStopAppCommand)) {
+                    cerr << "Client received stop application packet" << endl;
+                    _myLogger.logToFile( string( "Stop application from Network" ));
+                    if (_myShutterCloseProjectorsOnStop) {
+                        // close shutter on all connected projectors
+                        controlProjector("projector_shutter_close");
+                    }
+                    _myApplication.setPaused(true);
+                    myMessage = _myStopAppCommand;
+                } else if (isCommand(myCommand, _myStartAppCommand)) {
+                    cerr << "Client received start application packet" << endl;
+                    _myLogger.logToFile( string( "Start application from Network" ));
+                    _myApplication.setPaused(false);
+                    if (_myShutterCloseProjectorsOnStop) {
+                        // open shutter on all connected projectors
+                        controlProjector("projector_shutter_open");
+                    }
+                    myMessage = _myStartAppCommand;
+                } else if (isCommand(myCommand, _myStatusReportCommand)) {
+                    cerr << "Client received status report request" << endl;
 
-                ProcessResult myProcessResult = _myApplication.getProcessResult();
+                    ProcessResult myProcessResult = _myApplication.getProcessResult();
 
-                if ( myProcessResult == PR_FAILED ) {
-                    myMessage = "error application launch failed";
-                } else if ( myProcessResult == PR_RUNNING ) {
-                    myMessage = (static_cast<unsigned>(_myApplication.getRuntime()) > _myStatusLoadingDelay)?"ok":"loading";
-                } else if ( myProcessResult == PR_TERMINATED ) {
-                    myMessage = "error application terminated";
+                    if ( myProcessResult == PR_FAILED ) {
+                        myMessage = "error application launch failed";
+                    } else if ( myProcessResult == PR_RUNNING ) {
+                        myMessage = (static_cast<unsigned>(_myApplication.getRuntime()) > _myStatusLoadingDelay)?"ok":"loading";
+                    } else if ( myProcessResult == PR_TERMINATED ) {
+                        myMessage = "error application terminated";
+                    }
+                } else if (controlProjector(myCommand) == true) {
+                    // pass
+                } else {
+                    cerr << "### UDPHaltListener: Unexpected packet '" << myCommand << "'. Ignoring" << endl;
+                    ostringstream myOss;
+                    myOss << "### UDPHaltListener: Unexpected packet '" << myCommand
+                        << "'. Ignoring";
+                    _myLogger.logToFile( myOss.str() );
                 }
-            } else if (controlProjector(myCommand) == true) {
-                // pass
+                if ( ! myMessage.empty()) {
+                    myUDPServer.sendTo(clientHost, clientPort,
+                            myMessage.c_str(), myMessage.size());
+                    cerr << "send message to client: " << myMessage << endl;
+                }
             } else {
-                cerr << "### UDPHaltListener: Unexpected packet '" << myCommand << "'. Ignoring" << endl;
-                ostringstream myOss;
-                myOss << "### UDPHaltListener: Unexpected packet '" << myCommand
-                    << "'. Ignoring";
-                _myLogger.logToFile( myOss.str() );
-            }
-            if ( ! myMessage.empty()) {
-                myUDPServer.sendTo(clientHost, clientPort,
-                        myMessage.c_str(), myMessage.size());
+                AC_PRINT << "client host not allowed for ud pcontrol: " << asl::as_dotted_address(clientHost);
             }
         }
     } catch (SocketException & se) {

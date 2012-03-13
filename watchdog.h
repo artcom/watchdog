@@ -97,8 +97,9 @@ private:
     std::string         _myStartupCommand;
     std::string         _myShutdownCommand;
     std::string         _myApplicationTerminatedCommand;
+    std::string         _myContinuousStateChangeIP;
+    int                 _myContinuousStateChangePort;
     bool                _myIgnoreTerminateCmdOnUdpCmd;
-
     Application         _myAppToWatch;
 
     UDPCommandListenerThread * _myUDPCommandListenerThread;
@@ -108,7 +109,7 @@ private:
 
     void                checkForReboot();
     void                checkForHalt();
-
+    void                continuousStatusReport(std::string theStateMsg);
     long                _myRebootTimeInSecondsToday;
     long                _myHaltTimeInSecondsToday;
     bool                _myRestartAppFlag;

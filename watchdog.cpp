@@ -68,6 +68,8 @@
 //
 //=============================================================================
 
+#include <typeinfo>
+
 #include "watchdog.h"
 #include "system_functions.h"
 #include "Projector.h"
@@ -79,6 +81,9 @@
 #include <asl/base/Exception.h>
 #include <asl/base/Arguments.h>
 #include <asl/base/Time.h>
+#include <asl/base/settings.h>
+#include <asl/net/UDPSocket.h>
+
 #ifndef WIN32
 #   include <asl/base/signal_functions.h>
 #endif
@@ -94,6 +99,11 @@
 #include <algorithm>
 
 using namespace std;
+using namespace inet;
+using namespace asl;
+
+const asl::Unsigned16 MAX_PORT = 65535;
+
 
 const string ourDefaultConfigFile = "watchdog.xml";
 
@@ -109,6 +119,8 @@ WatchDog::WatchDog()
     : _myWatchFrequency(30),
       _myStartupCommand(""),
       _myShutdownCommand(""),
+      _myContinuousStateChangePort(-1),
+      _myContinuousStateChangeIP(""),
       _myApplicationTerminatedCommand(""),
       _myIgnoreTerminateCmdOnUdpCmd(false),
       _myAppToWatch(_myLogger),
@@ -150,6 +162,31 @@ WatchDog::arm() {
     }
 }
 
+void
+WatchDog::continuousStatusReport( std::string theStateMsg) {
+    if (_myContinuousStateChangeIP != "" && _myContinuousStateChangePort!=-1) {
+        AC_DEBUG << "send State: " << theStateMsg;
+        UDPSocket * myUDPClient = 0;
+        Unsigned32 inHostAddress = getHostAddress(_myContinuousStateChangeIP.c_str());
+        // try to find a free client port between _myContinuousStateChangePort+1 and MAX_PORT
+        for (Unsigned16 clientPort = _myContinuousStateChangePort+1; clientPort <= MAX_PORT; clientPort++)
+        {
+            try {
+                myUDPClient = new UDPSocket(INADDR_ANY, clientPort);
+                break;
+            }
+            catch (SocketException & se)
+            {
+                myUDPClient = 0;
+            }
+        }
+        if (myUDPClient) {
+            myUDPClient->sendTo(inHostAddress, _myContinuousStateChangePort, theStateMsg.c_str(), theStateMsg.size());
+            delete myUDPClient;
+        }
+    }
+}
+
 bool
 WatchDog::watch() {
     try {
@@ -180,12 +217,14 @@ WatchDog::watch() {
             if (!_myAppToWatch.paused()) {
                 myReturnString = "Internal quit.";
                 _myLogger.logToFile( "Restarting application." );
-
+                continuousStatusReport("loading");
                 _myAppToWatch.launch();
+
             } else {
                 myReturnString = "Application paused.";
             }
 
+            continuousStatusReport("runnning");
             std::string myRestartMessage = "Application shutdown";
 
             while (!_myAppToWatch.paused() && _myAppToWatch.getProcessResult() == PR_RUNNING) {
@@ -198,6 +237,7 @@ WatchDog::watch() {
                 myReturnString = _myAppToWatch.runUntilNextCheck(_myWatchFrequency);
                 _myAppToWatch.checkHeartbeat();
                 _myAppToWatch.checkState();
+    
                 // system halt & reboot
                 checkForHalt();
                 checkForReboot();
@@ -229,6 +269,7 @@ WatchDog::watch() {
                 }
 
                 cerr << "Watchdog - Restarting application in " << myRestartDelay << " seconds" << endl;
+                continuousStatusReport("restarting");
                 for (unsigned i = 0; i < myRestartDelay * 2; ++i) {
                     cerr << ".";
                     asl::msleep(500);
@@ -237,6 +278,7 @@ WatchDog::watch() {
                 cerr << endl;
             } else {
                 cerr << "Watchdog - Application is currently paused" << endl;
+                continuousStatusReport("pausing");
                 while (_myAppToWatch.paused()) {
                     asl::msleep(1000);
                 }
@@ -326,13 +368,13 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
             
             // check for additional startup command
             if (myConfigNode->childNode("PreStartupCommand")) {
-                _myStartupCommand = (*myConfigNode->childNode("PreStartupCommand"))("#text").nodeValue();
+                _myStartupCommand = (*myConfigNode->childNode("PreStartupCommand")).firstChild()->nodeValue();
                 AC_DEBUG << "_myStartupCommand: " << _myStartupCommand;
             }
             
             // check for additional shutdown command
             if (myConfigNode->childNode("PreShutdownCommand")) {
-                _myShutdownCommand = (*myConfigNode->childNode("PreShutdownCommand"))("#text").nodeValue();
+                _myShutdownCommand = (*myConfigNode->childNode("PreShutdownCommand")).firstChild()->nodeValue();
                 AC_DEBUG << "_myShutdownCommand: " << _myShutdownCommand;
             }
 
@@ -364,6 +406,28 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
 
                 _myUDPCommandListenerThread = new UDPCommandListenerThread(_myProjectors, _myAppToWatch, 
                                                         myUdpControlNode, _myLogger, _myShutdownCommand);
+
+                if (myUdpControlNode->childNode("ContinuousStatusChangeReport")) {
+                    const dom::NodePtr & myContinuousStatusChangeNode = myUdpControlNode->childNode("ContinuousStatusChangeReport");
+                    const dom::NodePtr & myIPAttribute = myContinuousStatusChangeNode->getAttribute("ip");
+                    if (myIPAttribute) {
+                        _myContinuousStateChangeIP  = myIPAttribute->nodeValue();
+                    }
+                    const dom::NodePtr & myPortAttribute = myContinuousStatusChangeNode->getAttribute("port");
+                    if (myPortAttribute) {
+                        _myContinuousStateChangePort  = as<int>(myPortAttribute->nodeValue());
+                    }
+                    if (_myContinuousStateChangeIP != "" && _myContinuousStateChangePort!=-1) {
+                        AC_PRINT << "Continuous state change will will be send to IP: '" << _myContinuousStateChangeIP << "' port :" << _myContinuousStateChangePort;
+                    }
+                }
+
+                // check for status report configuration
+                if (myUdpControlNode->childNode("StatusReport")) {
+                    const dom::NodePtr & myStatusReportNode = myUdpControlNode->childNode("StatusReport");
+
+                }
+
             }
 
             // check for system reboot time command configuration

@@ -36,6 +36,10 @@
 
     -->
     <UdpControl port="2346">
+        <IpWhitlelist>
+            <Ip>10.1.3.91</Ip>
+            <Ip>127.0.0.1</Ip>
+        </IpWhitlelist>
         <SystemHalt powerDownProjectors="true" command="halt"/>    
         <SystemReboot shutterCloseProjectors="true" command="reboot"/>
         <RestartApplication command="restart_app"/>
@@ -44,17 +48,23 @@
         <ProjectorControl powerUpOnStartup="true">
             <Projector type="nec" port="0" baud="38400" input="RGB_1"/>
         </ProjectorControl>
+        <StatusReport command="status" loadingtime="2"/>
+        <ContinuousStatusChangeReport ip="10.1.1.106" port="6655"/>
     </UdpControl>
     <AppTerminateCommand ignoreOnUdpRestart="false">
 		<![CDATA[dir]]>    
-    </AppTerminateCommand>
+    </AppTerminateCommand>    
+    <PreShutdownCommand>
+		<![CDATA[dir]]>    
+    </PreShutdownCommand>
+    <PreStartupCommand>
+		<![CDATA[dir]]>    
+    </PreStartupCommand>
     <!--<RebootTime>15:30</RebootTime>-->
     <!--<HaltTime>16:10</HaltTime>-->
     <Application binary="calc.exe" directory="">
         <EnvironmentVariables>
             <!--<EnvironmentVariable name="key"><![CDATA[value]]></EnvironmentVariable>-->
-            <EnvironmentVariable name="AC_LOG_CONSOLE_FORMAT">
-    		</EnvironmentVariable>            
         </EnvironmentVariables>
         <Arguments>
             <Argument>test.txt</Argument>
@@ -66,12 +76,7 @@
             <FirstHeartBeatDelay>120</FirstHeartBeatDelay>
         </Heartbeat>-->
         <WaitDuringStartup>0</WaitDuringStartup>
-        <WaitDuringRestart>10</WaitDuringRestart>
-        
-        <WaitingScreenImage>c:/bmw.png</WaitingScreenImage>
-        <WaitingScreenPosX>0</WaitingScreenPosX>
-        <WaitingScreenPosY>0</WaitingScreenPosY>
-        
+        <WaitDuringRestart>10</WaitDuringRestart>                
         <Memory_Threshold>100000</Memory_Threshold>
         <!--<RestartDay>Monday</RestartDay>-->
         <RestartTime>12:02</RestartTime>
