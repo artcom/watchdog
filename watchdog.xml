@@ -69,16 +69,16 @@
         <Arguments>
             <Argument>test.txt</Argument>
         </Arguments>
-        <!--<Heartbeat>
+        <<Heartbeat>
             <Heartbeat_File>${TEMP}/heartbeat.xml</Heartbeat_File>
             <Allow_Missing_Heartbeats>5</Allow_Missing_Heartbeats>
             <Heartbeat_Frequency>1</Heartbeat_Frequency>
             <FirstHeartBeatDelay>120</FirstHeartBeatDelay>
-        </Heartbeat>-->
+        </Heartbeat>
         <WaitDuringStartup>0</WaitDuringStartup>
         <WaitDuringRestart>10</WaitDuringRestart>                
         <Memory_Threshold>100000</Memory_Threshold>
-        <!--<RestartDay>Monday</RestartDay>-->
+        <RestartDay>Monday</RestartDay>
         <RestartTime>12:02</RestartTime>
         <CheckMemoryTime>00:00</CheckMemoryTime>
         <CheckTimedMemoryThreshold>150000</CheckTimedMemoryThreshold>
