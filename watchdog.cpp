@@ -119,9 +119,9 @@ WatchDog::WatchDog()
     : _myWatchFrequency(30),
       _myStartupCommand(""),
       _myShutdownCommand(""),
-      _myContinuousStateChangePort(-1),
-      _myContinuousStateChangeIP(""),
       _myApplicationTerminatedCommand(""),
+      _myContinuousStateChangeIP(""),
+      _myContinuousStateChangePort(-1),
       _myIgnoreTerminateCmdOnUdpCmd(false),
       _myAppToWatch(_myLogger),
       _myUDPCommandListenerThread(0),
@@ -169,13 +169,13 @@ WatchDog::continuousStatusReport( std::string theStateMsg) {
         UDPSocket * myUDPClient = 0;
         Unsigned32 inHostAddress = getHostAddress(_myContinuousStateChangeIP.c_str());
         // try to find a free client port between _myContinuousStateChangePort+1 and MAX_PORT
-        for (Unsigned16 clientPort = _myContinuousStateChangePort+1; clientPort <= MAX_PORT; clientPort++)
+        for (unsigned int clientPort = _myContinuousStateChangePort+1; clientPort <= MAX_PORT; clientPort++)
         {
             try {
                 myUDPClient = new UDPSocket(INADDR_ANY, clientPort);
                 break;
             }
-            catch (SocketException & se)
+            catch (SocketException & )
             {
                 myUDPClient = 0;
             }
@@ -420,12 +420,6 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                     if (_myContinuousStateChangeIP != "" && _myContinuousStateChangePort!=-1) {
                         AC_PRINT << "Continuous state change will will be send to IP: '" << _myContinuousStateChangeIP << "' port :" << _myContinuousStateChangePort;
                     }
-                }
-
-                // check for status report configuration
-                if (myUdpControlNode->childNode("StatusReport")) {
-                    const dom::NodePtr & myStatusReportNode = myUdpControlNode->childNode("StatusReport");
-
                 }
 
             }

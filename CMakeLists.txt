@@ -38,5 +38,5 @@ ac_add_executable(
     watchdog
     SOURCES ${SOURCES}
     HEADERS ${HEADERS}  
-    DEPENDS aslbase aslnet asldom aslserial paintlib
+    DEPENDS aslbase aslnet asldom aslserial
 )
