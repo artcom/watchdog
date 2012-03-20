@@ -65,7 +65,6 @@
 
 #include <string>
 #include <asl/dom/Nodes.h>
-#include <y60/base/typedefs.h>
 
 namespace asl {
     class SerialDevice;
