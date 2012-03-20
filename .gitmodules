@@ -1,0 +1,6 @@
+[submodule "asl"]
+	path = asl
+	url = git@github.com:artcom/asl.git
+[submodule "acmake"]
+	path = acmake
+	url = git@github.com:artcom/acmake.git
