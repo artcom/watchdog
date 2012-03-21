@@ -91,6 +91,9 @@ Full featured systemcommand configuration node:
 
     <RebootTime>15:30</RebootTime>
     <HaltTime>16:10</HaltTime>
+    <AppPreTerminateCommand>
+		<![CDATA[dir]]>    
+    </AppPreTerminateCommand>    
     <AppTerminateCommand ignoreOnUdpRestart="false">
 		<![CDATA[dir]]>    
     </AppTerminateCommand>    
@@ -105,10 +108,11 @@ Fully Optional nodes:
   
 - <RebootTime> will define a timestamp at which the computer will reboot
 - <HaltTime> will define a timestamp at which the computer will shutdown
-- <AppTerminateCommand> will define a systemcommand to be executed when the apps terminates
-  Attributes: <ignoreOnUdpRestart> - can be made dependent if the app is restartet via udp or exited internally
-- <PreShutdownCommand> will define a systemcommand to be executed before the app is terminated
-- <PreStartupCommand> will define a systemcommand to be executed before the app is started or restarted
+- <AppPreTerminateCommand> will define a systemcommand to be executed before the app will be terminated
+- <AppTerminateCommand> will define a systemcommand to be executed after the app terminated
+   Attributes: <ignoreOnUdpRestart> - can be made dependent if the app is restartet via udp or exited internally
+- <PreShutdownCommand> will define a systemcommand to be executed before the computer is shutdown
+- <PreStartupCommand> will define a systemcommand to be executed when the watchdog is started
 
 3. Udpcontrol interface
 Full featured Udpcontrol configuration node:

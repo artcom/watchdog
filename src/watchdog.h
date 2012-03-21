@@ -97,6 +97,7 @@ private:
     std::string         _myStartupCommand;
     std::string         _myShutdownCommand;
     std::string         _myApplicationTerminatedCommand;
+    std::string         _myApplicationPreTerminateCommand;
     std::string         _myContinuousStateChangeIP;
     int                 _myContinuousStateChangePort;
     bool                _myIgnoreTerminateCmdOnUdpCmd;
