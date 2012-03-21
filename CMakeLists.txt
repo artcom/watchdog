@@ -6,6 +6,7 @@ project(Watchdog)
 set(ACMAKE_INTEGRATED_BUILD YES)
 
 # add acmake to build
+list(INSERT CMAKE_PREFIX_PATH 0 ${CMAKE_BINARY_DIR})
 add_subdirectory(acmake)
 find_package(AcMake)
 
