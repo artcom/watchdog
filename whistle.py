@@ -11,7 +11,7 @@ if (len(sys.argv) < 2):
 s = socket(AF_INET, SOCK_DGRAM)
 s.bind(('', 0))
 #s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
-s.sendto(sys.argv[1], ('localhost', UDP_PORT))
+s.sendto(sys.argv[1], ('10.1.1.106', UDP_PORT))
 print "broadcast '%s' to port %d" % (sys.argv[1], UDP_PORT)
 
 while 0<1:

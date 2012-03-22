@@ -51,6 +51,9 @@
         <StatusReport command="status" loadingtime="2"/>
         <ContinuousStatusChangeReport ip="10.1.1.106" port="6655"/>
     </UdpControl>
+    <AppPreTerminateCommand>
+		<![CDATA[dir]]>    
+    </AppPreTerminateCommand>    
     <AppTerminateCommand ignoreOnUdpRestart="false">
 		<![CDATA[dir]]>    
     </AppTerminateCommand>    

@@ -120,6 +120,7 @@ WatchDog::WatchDog()
       _myStartupCommand(""),
       _myShutdownCommand(""),
       _myApplicationTerminatedCommand(""),
+      _myApplicationPreTerminateCommand(""),
       _myContinuousStateChangeIP(""),
       _myContinuousStateChangePort(-1),
       _myIgnoreTerminateCmdOnUdpCmd(false),
@@ -248,6 +249,11 @@ WatchDog::watch() {
 
             }
 
+            if (_myApplicationPreTerminateCommand != "") {
+                _myLogger.logToFile(string("application will be terminated, send additional pre_restart command: '") + _myApplicationPreTerminateCommand + "'");
+                int myError = system(_myApplicationPreTerminateCommand.c_str());
+                _myLogger.logToFile(string("application will be terminated, send additional pre_restart command, returned with error: ") + asl::as_string(myError));
+            }
             _myAppToWatch.terminate(myRestartMessage, false);
 
             _myLogger.logToFile(_myAppToWatch.getFilename() + string(" exited: ") + myReturnString);
@@ -385,6 +391,11 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 }
                 _myApplicationTerminatedCommand = (*myConfigNode->childNode("AppTerminateCommand")).firstChild()->nodeValue();
                 AC_DEBUG << "_myApplicationTerminatedCommand: " << _myApplicationTerminatedCommand;
+            }
+            // check for application pre terminate command
+            if (myConfigNode->childNode("AppPreTerminateCommand")) {
+                _myApplicationPreTerminateCommand = (*myConfigNode->childNode("AppPreTerminateCommand")).firstChild()->nodeValue();
+                AC_DEBUG << "_myApplicationPreTerminateCommand: " << _myApplicationPreTerminateCommand;
             }
 
 
