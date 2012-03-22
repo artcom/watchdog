@@ -1,0 +1,17 @@
+.project
+.cproject
+CMakeCache.txt
+ACMakeFiles/
+CMakeFiles/
+bin/
+include/
+lib/
+CTestTestfile.cmake
+cmake_install.cmake
+.DS_Store
+build.log
+_builds
+*~
+.*swp
+.*swo
+.*swn
