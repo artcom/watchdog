@@ -37,6 +37,7 @@
     -->
     <UdpControl port="2346">
         <IpWhitlelist>
+            <Ip>10.1.1.106</Ip>
             <Ip>10.1.3.91</Ip>
             <Ip>127.0.0.1</Ip>
         </IpWhitlelist>
@@ -45,13 +46,13 @@
         <RestartApplication command="restart_app"/>
         <StopApplication shutterCloseProjectors="true" command="firealarm_on"/>
         <StartApplication command="firealarm_off"/>
-        <ProjectorControl powerUpOnStartup="true">
+        <!--ProjectorControl powerUpOnStartup="true">
             <Projector type="nec" port="0" baud="38400" input="RGB_1"/>
-        </ProjectorControl>
+        </ProjectorControl-->
         <StatusReport command="status" loadingtime="2"/>
-        <ContinuousStatusChangeReport ip="10.1.1.106" port="6655"/>
+        <!--ContinuousStatusChangeReport ip="10.1.1.106" port="6655"/-->
     </UdpControl>
-    <AppPreTerminateCommand>
+    <!--AppPreTerminateCommand>
 		<![CDATA[dir]]>    
     </AppPreTerminateCommand>    
     <AppTerminateCommand ignoreOnUdpRestart="false">
@@ -62,28 +63,28 @@
     </PreShutdownCommand>
     <PreStartupCommand>
 		<![CDATA[dir]]>    
-    </PreStartupCommand>
+    </PreStartupCommand-->
     <!--<RebootTime>15:30</RebootTime>-->
     <!--<HaltTime>16:10</HaltTime>-->
-    <Application binary="calc.exe" directory="">
+    <Application binary="calc.exe" directory="D:\dev\git\Misc\obj\bin\Release">
         <EnvironmentVariables>
             <!--<EnvironmentVariable name="key"><![CDATA[value]]></EnvironmentVariable>-->
         </EnvironmentVariables>
         <Arguments>
-            <Argument>test.txt</Argument>
+            <!--Argument>test.txt</Argument!-->
         </Arguments>
-        <<Heartbeat>
+        <!--Heartbeat>
             <Heartbeat_File>${TEMP}/heartbeat.xml</Heartbeat_File>
             <Allow_Missing_Heartbeats>5</Allow_Missing_Heartbeats>
             <Heartbeat_Frequency>1</Heartbeat_Frequency>
             <FirstHeartBeatDelay>120</FirstHeartBeatDelay>
-        </Heartbeat>
-        <WaitDuringStartup>0</WaitDuringStartup>
+        </Heartbeat-->
+        <!--WaitDuringStartup>0</WaitDuringStartup>
         <WaitDuringRestart>10</WaitDuringRestart>                
         <Memory_Threshold>100000</Memory_Threshold>
         <RestartDay>Monday</RestartDay>
         <RestartTime>12:02</RestartTime>
         <CheckMemoryTime>00:00</CheckMemoryTime>
-        <CheckTimedMemoryThreshold>150000</CheckTimedMemoryThreshold>
+        <CheckTimedMemoryThreshold>150000</CheckTimedMemoryThreshold-->
     </Application>
 </WatchdogConfig>

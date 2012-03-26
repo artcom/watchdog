@@ -75,6 +75,7 @@
 #include "Projector.h"
 
 #include <asl/dom/Nodes.h>
+#include <asl/base/buildinfo.h>
 #include <asl/base/string_functions.h>
 #include <asl/base/file_functions.h>
 #include <asl/base/os_functions.h>
@@ -111,6 +112,9 @@ asl::Arguments ourArguments;
 const asl::Arguments::AllowedOptionWithDocumentation ourAllowedOptions[] = {
     {"--configfile", "watchdog.xml", "XML configuration file"},
     {"--no_restart", "", "start only once, do not restart"},
+    {"--version", "", "show builddate "},
+    {"--revision", "", "show watchdog revision"},
+    {"--revisions", "", "show component revisions"},
     {"--help", "", "print help"},    
     {"", ""}
 };
@@ -512,9 +516,14 @@ main(int argc, char* argv[] ) {
     bool myRestartAppFlag = true;
     dom::Document myConfigDoc;
     if (ourArguments.haveOption("--help")) {
-            printUsage();
-            return -1;
+        printUsage();
+        return -1;
     }
+    if (ourArguments.haveOption("--revisions")) {
+        using asl::build_information;
+        std::cout << build_information::get();
+    }
+
     if (ourArguments.haveOption("--no_restart")) {
         myRestartAppFlag = false;
     }

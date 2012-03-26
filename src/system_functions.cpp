@@ -72,6 +72,7 @@
 #include <asl/base/Time.h>
 
 #ifdef WIN32
+#include <asl/base/file_functions.h>
 #   include <windows.h>
 #elif defined(LINUX) || defined(OSX)
 #   include <sys/wait.h>
@@ -250,6 +251,10 @@ bool launchApp( const std::string & theFileName,
         myCommandLine += theArguments[i];
     }
 
+    if ( ! theWorkingDirectory.empty() ) {
+        asl::changeDirectory( theWorkingDirectory.c_str() );
+    }
+
     return 0 != CreateProcess(NULL, &(myCommandLine[0]),
                               NULL, NULL, TRUE, 0,
                               NULL,
@@ -397,4 +402,5 @@ dumpLastError(const string& theErrorLocation) {
     cerr << "Warning: \"" << theErrorLocation << "\" failed.\n";
     cerr << "         Error was \"" << getLastError( myErrorNumber )
          << "\" with code : " << myErrorNumber << endl;
+
 }

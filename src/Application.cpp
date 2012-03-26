@@ -174,6 +174,7 @@ bool Application::setup(const dom::NodePtr & theAppNode) {
     _myFileName = asl::expandEnvironment(theAppNode->getAttribute("binary")->nodeValue());
     AC_DEBUG <<"_myFileName: " << _myFileName;
     if (_myFileName.empty()){
+        _myLogger.logToFile("### ERROR, no application binary to watch.");        
         cerr <<"### ERROR, no application binary to watch." << endl;
         return false;
     }
@@ -282,8 +283,7 @@ Application::setEnvironmentVariables() {
     std::map<std::string, std::string>::iterator myIter = _myEnvironmentVariables.begin();
     for( myIter = _myEnvironmentVariables.begin(); myIter != _myEnvironmentVariables.end(); ++myIter ) {
         asl::set_environment_var(myIter->first, myIter->second);
-        _myLogger.logToFile(string("Set environment variable: ") + myIter->first +
-                            "=" + myIter->second);
+        _myLogger.logToFile( "Set environment variable: " + myIter->first + "=" + myIter->second);
         cerr << "Set environment variable: " << myIter->first <<
                 "=" << myIter->second << endl;
 
@@ -337,13 +337,14 @@ Application::launch() {
     _myEnvironmentVariables[STARTUP_COUNT_ENV] = asl::as_string(++_myStartupCount);
     setEnvironmentVariables();
 
-
     bool myResult = launchApp( _myFileName, _myArguments, _myWorkingDirectory,
                                _myProcessInfo );
 
     std::string myCommandLine = _myFileName + " " + getArguments();
 
     if (!myResult) {
+        _myLogger.logToFile( getLastError() + " Command : '" + myCommandLine  + "'" + 
+                             (_myWorkingDirectory != "" ? " working directoy: '" + _myWorkingDirectory + "'" : ""));
         cerr << getLastError() << "\n\n" << myCommandLine << endl;
         exit(-1);
     }

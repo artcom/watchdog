@@ -5,6 +5,10 @@ project(Watchdog)
 # tell acmake that it is being used in integrated mode
 set(ACMAKE_INTEGRATED_BUILD YES)
 
+# set the global default buildinfo template
+set(ACMAKE_BUILDINFO_TEMPLATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/asl/base/buildinfo.cpp.in)
+
 # add acmake to build
 list(INSERT CMAKE_PREFIX_PATH 0 ${CMAKE_BINARY_DIR})
 add_subdirectory(acmake)
