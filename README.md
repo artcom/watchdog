@@ -119,7 +119,7 @@ Full featured application configuration node:
 
 Optional nodes:              
 
-- {<Arguments>} defines a list of application arguments
+- \*<Arguments>\* defines a list of application arguments
   and has children of <Argument>-nodes with childnode definition of the environment variable
   with the use of CDATA-definition it is possible to handle specials character easier (i.e. '\').
   
