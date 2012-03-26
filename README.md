@@ -76,10 +76,10 @@ The smallest possible configuration is this:
 
 It will start the application 'calc.exe' check its status every 15 seconds and log all watchdog output to the logfile 'watch.log'.
 
-The full feature set is divied in three categories:
-1. The application startup configuration, timed restart commands and runtime checks, like memory cunsumption and heartbeat detecction.
-2. Systemcommand pre and post application execution and timed computer restart or shutdown 
-3. Udpcontrol interface for status and controlling of computer, application and a bunch of projectors (will be updated to a plugin infrastructure)
+The full feature set is divided in three categories:  
+1. The application startup configuration, timed restart commands and runtime checks, like memory cunsumption and heartbeat detecction.  
+2. Systemcommand pre and post application execution and timed computer restart or shutdown   
+3. Udpcontrol interface for status and controlling of computer, application and a bunch of projectors (will be updated to a plugin infrastructure)  
 
 All optional nodes are obsolete, the functionality will be disabled.
 The notation ${env_var} will evaluate the environment variable 'env_var' into the string, and is used in heartbeat_file definition, 
@@ -119,7 +119,7 @@ Full featured application configuration node:
 
 Optional nodes:              
 
-- <Arguments> defines a list of application arguments
+- {<Arguments>} defines a list of application arguments
   and has children of <Argument>-nodes with childnode definition of the environment variable
   with the use of CDATA-definition it is possible to handle specials character easier (i.e. '\').
   
