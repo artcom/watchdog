@@ -50,7 +50,7 @@
             <Projector type="nec" port="0" baud="38400" input="RGB_1"/>
         </ProjectorControl-->
         <StatusReport command="status" loadingtime="2"/>
-        <!--ContinuousStatusChangeReport ip="10.1.1.106" port="6655"/-->
+        <ContinuousStatusChangeReport ip="10.1.1.106" port="6655"/>
     </UdpControl>
     <!--AppPreTerminateCommand>
 		<![CDATA[dir]]>    

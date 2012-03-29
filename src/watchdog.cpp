@@ -170,24 +170,30 @@ WatchDog::arm() {
 void
 WatchDog::continuousStatusReport( std::string theStateMsg) {
     if (_myContinuousStateChangeIP != "" && _myContinuousStateChangePort!=-1) {
-        AC_DEBUG << "send State: " << theStateMsg;
-        UDPSocket * myUDPClient = 0;
-        Unsigned32 inHostAddress = getHostAddress(_myContinuousStateChangeIP.c_str());
-        // try to find a free client port between _myContinuousStateChangePort+1 and MAX_PORT
-        for (unsigned int clientPort = _myContinuousStateChangePort+1; clientPort <= MAX_PORT; clientPort++)
-        {
-            try {
-                myUDPClient = new UDPSocket(INADDR_ANY, clientPort);
-                break;
-            }
-            catch (SocketException & )
+        try {
+            AC_DEBUG << "send State: " << theStateMsg;
+            UDPSocket * myUDPClient = 0;
+            Unsigned32 inHostAddress = getHostAddress(_myContinuousStateChangeIP.c_str());
+            // try to find a free client port between _myContinuousStateChangePort+1 and MAX_PORT
+            for (unsigned int clientPort = _myContinuousStateChangePort+1; clientPort <= MAX_PORT; clientPort++)
             {
-                myUDPClient = 0;
+                try {
+                    myUDPClient = new UDPSocket(INADDR_ANY, clientPort);
+                    break;
+                }
+                catch (SocketException & )
+                {
+                    myUDPClient = 0;
+                }
+            }
+            if (myUDPClient) {
+                myUDPClient->sendTo(inHostAddress, _myContinuousStateChangePort, theStateMsg.c_str(), theStateMsg.size());
+                delete myUDPClient;
             }
         }
-        if (myUDPClient) {
-            myUDPClient->sendTo(inHostAddress, _myContinuousStateChangePort, theStateMsg.c_str(), theStateMsg.size());
-            delete myUDPClient;
+        catch (Exception & )
+        {
+            _myLogger.logToFile(std::string("Sorry, cannot establish socket connection to ip: '") + _myContinuousStateChangeIP + "'");            
         }
     }
 }
