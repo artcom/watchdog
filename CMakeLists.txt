@@ -16,7 +16,7 @@ find_package(AcMake)
 
 # declare our packaging solution
 ac_begin_solution(
-    WATCHDOG
+    Watchdog
     VERSION_MAJOR 1 VERSION_MINOR 0 VERSION_PATCH 6
     DESCRIPTION  "Watchdog"
     VENDOR       "ART+COM AG"
@@ -30,6 +30,6 @@ ac_begin_solution(
 
 add_subdirectory(asl)
 add_subdirectory(src)
-ac_end_solution(WATCHDOG)
+ac_end_solution(Watchdog)
 
 
