@@ -436,7 +436,7 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
 
 void
 printUsage() {
-    cerr << ourArguments.getProgramName() << " Copyright (C) 2003-2005 ART+COM" << endl;
+    cerr << ourArguments.getProgramName() << " Copyright (C) 1993-2012, ART+COM AG Berlin, Germany <www.artcom.de>" << endl;
     ourArguments.printUsage();
     cerr << "Default configfile: " << ourDefaultConfigFile << endl;
 }
