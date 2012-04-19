@@ -62,10 +62,7 @@ asl::Arguments ourArguments;
 const asl::Arguments::AllowedOptionWithDocumentation ourAllowedOptions[] = {
     {"--configfile", "watchdog.xml", "XML configuration file"},
     {"--no_restart", "", "start only once, do not restart"},
-    {"--version", "", "show builddate "},
-    {"--revision", "", "show watchdog revision"},
     {"--revisions", "", "show component revisions"},
-    {"--help", "", "print help"},    
     {"", ""}
 };
 
@@ -435,13 +432,6 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
 }
 
 void
-printUsage() {
-    cerr << ourArguments.getProgramName() << " Copyright (C) 1993-2012, ART+COM AG Berlin, Germany <www.artcom.de>" << endl;
-    ourArguments.printUsage();
-    cerr << "Default configfile: " << ourDefaultConfigFile << endl;
-}
-
-void
 readConfigFile(dom::Document & theConfigDoc,  std::string theFileName) {
     AC_DEBUG << "Loading configuration data..." ;
     std::string myFileStr = asl::readFile(theFileName);
@@ -471,10 +461,6 @@ main(int argc, char* argv[] ) {
     }
     bool myRestartAppFlag = true;
     dom::Document myConfigDoc;
-    if (ourArguments.haveOption("--help")) {
-        printUsage();
-        return -1;
-    }
     if (ourArguments.haveOption("--revisions")) {
         using asl::build_information;
         std::cout << build_information::get();
@@ -489,7 +475,7 @@ main(int argc, char* argv[] ) {
         if (asl::fileExists(ourDefaultConfigFile)) {
             readConfigFile (myConfigDoc, ourDefaultConfigFile);
         } else {
-            printUsage();
+            ourArguments.printUsage();
             return -1;
         }
     }
