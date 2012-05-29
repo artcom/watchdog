@@ -31,6 +31,8 @@
 
 #include "Application.h"
 
+const asl::Unsigned16 MAX_PORT = 65535;
+
 using namespace inet;
 using namespace std;
 
@@ -57,12 +59,17 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
     _myStartAppCommand(""),
     _myStatusReportCommand(""),
     _myStatusLoadingDelay(0), 
+    _myReturnMessagePort(-1),
     _myShutdownCommand(theShutdownCommand)
 {
     // check for UDP port
     if (theConfigNode->getAttribute("port")) {
         _myUDPPort = asl::as<int>(theConfigNode->getAttribute("port")->nodeValue());
         AC_DEBUG << "_myPort: " << _myUDPPort;
+    }
+    if (theConfigNode->getAttribute("returnport")) {
+        _myReturnMessagePort = asl::as<int>(theConfigNode->getAttribute("returnport")->nodeValue());
+        AC_DEBUG << "return message to port: " << _myReturnMessagePort;
     }
 
     // check for system halt command configuration
@@ -229,9 +236,42 @@ UDPCommandListenerThread::allowedIp(asl::Unsigned32 theHostAddress) {
 }
 
 void
+UDPCommandListenerThread::sendReturnMessage(asl::Unsigned32 theClientHost, const std::string & theMessage) {
+    if (theMessage.empty() || _myReturnMessagePort == -1) {
+        return;
+    }
+    try {
+        UDPSocket * myUDPClient = 0;
+        for (unsigned int clientPort = _myUDPPort+1; clientPort <= MAX_PORT; clientPort++)
+        {
+            try {
+                myUDPClient = new UDPSocket(INADDR_ANY, clientPort);
+                break;
+            }
+            catch (SocketException & )
+            {
+                myUDPClient = 0;
+            }
+        }
+        if (myUDPClient) {
+            myUDPClient->sendTo(theClientHost, _myReturnMessagePort, theMessage.c_str(), theMessage.size());            
+            cerr << "send message to client: " << theMessage << endl;                
+        }
+    } catch (SocketException & se) {
+        cerr << "### UDPHaltListener::sendReturnMessage " << se.what() << endl;
+        ostringstream myOss;
+        myOss <<  "### UDPHaltListener: " << se.what();
+        _myLogger.logToFile( myOss.str() );
+    }
+}
+
+void
 UDPCommandListenerThread::run() {
     cout << "Halt listener activated." << endl;
     cout << "* UDP Listener on port: " << _myUDPPort << endl;
+    if (_myReturnMessagePort != -1) {
+        cout << "* UDP Listener return messages on port: " << _myReturnMessagePort << endl;
+    }
     cout << "* Commands:" << endl;
     cout << "      System Halt  : " << _mySystemHaltCommand << endl;
     cout << "      System Reboot: " << _mySystemRebootCommand << endl;
@@ -243,90 +283,91 @@ UDPCommandListenerThread::run() {
         UDPSocket myUDPServer( INADDR_ANY, static_cast<asl::Unsigned16>(_myUDPPort) );
 
         for (;;) {
-            asl::Unsigned32 clientHost;
-            asl::Unsigned16 clientPort;
-            char myInputBuffer[2048];
-            unsigned myBytesRead = myUDPServer.receiveFrom(
-                    &clientHost, &clientPort,
-                    myInputBuffer,sizeof(myInputBuffer)-1);
-            if(allowedIp(clientHost)) {
-                myInputBuffer[myBytesRead] = 0;
-                std::istringstream myIss(myInputBuffer);
-                std::string myCommand;
-                std::getline(myIss, myCommand);
-                std::string myMessage;
-                if (isCommand(myCommand, std::string("ping"))) {
-                    myMessage = "pong";
-                } else if (isCommand(myCommand, _mySystemHaltCommand)) {
-                    cerr << "Client received halt packet" << endl;
-                    _myLogger.logToFile( string("Shutdown from Network") );
-                    _myLogger.closeLogFile();
-                    myUDPServer.sendTo(clientHost, clientPort,
-                            _mySystemHaltCommand.c_str(), _mySystemHaltCommand.size());
-                    initiateShutdown();
-                } else if (isCommand(myCommand, _mySystemRebootCommand)) {
-                    cerr << "Client received reboot packet" << endl;
-                    _myLogger.logToFile( string("Reboot from Network" ));
-                    _myLogger.closeLogFile();
-                    myUDPServer.sendTo(clientHost, clientPort,
-                            _mySystemRebootCommand.c_str(), _mySystemRebootCommand.size());
-                    initiateReboot();
-                } else if (isCommand(myCommand, _myRestartAppCommand)) {
-                    cerr << "Client received restart application packet" << endl;
-                    _myApplication.restart();
-                    myMessage = _myRestartAppCommand;
-                } else if (isCommand(myCommand, _myStopAppCommand)) {
-                    cerr << "Client received stop application packet" << endl;
-                    _myLogger.logToFile( string( "Stop application from Network" ));
-                    if (_myShutterCloseProjectorsOnStop) {
-                        // close shutter on all connected projectors
-                        controlProjector("projector_shutter_close");
+            try {
+                asl::Unsigned32 clientHost;
+                asl::Unsigned16 clientPort;
+                char myInputBuffer[2048];
+                unsigned myBytesRead = myUDPServer.receiveFrom(
+                        &clientHost, &clientPort,
+                        myInputBuffer,sizeof(myInputBuffer)-1);
+                if(allowedIp(clientHost)) {
+                    myInputBuffer[myBytesRead] = 0;
+                    std::istringstream myIss(myInputBuffer);
+                    std::string myCommand;
+                    std::getline(myIss, myCommand);
+                    std::string myMessage;
+                    if (isCommand(myCommand, std::string("ping"))) {
+                        myMessage = "pong";
+                    } else if (isCommand(myCommand, _mySystemHaltCommand)) {
+                        cerr << "Client received halt packet" << endl;
+                        _myLogger.logToFile( string("Shutdown from Network") );
+                        _myLogger.closeLogFile();
+                        sendReturnMessage(clientHost, _mySystemHaltCommand);
+                        initiateShutdown();
+                    } else if (isCommand(myCommand, _mySystemRebootCommand)) {
+                        cerr << "Client received reboot packet" << endl;
+                        _myLogger.logToFile( string("Reboot from Network" ));
+                        _myLogger.closeLogFile();
+                        sendReturnMessage(clientHost, _mySystemRebootCommand);
+                        initiateReboot();
+                    } else if (isCommand(myCommand, _myRestartAppCommand)) {
+                        cerr << "Client received restart application packet" << endl;
+                        _myApplication.restart();
+                        myMessage = _myRestartAppCommand;
+                    } else if (isCommand(myCommand, _myStopAppCommand)) {
+                        cerr << "Client received stop application packet" << endl;
+                        _myLogger.logToFile( string( "Stop application from Network" ));
+                        if (_myShutterCloseProjectorsOnStop) {
+                            // close shutter on all connected projectors
+                            controlProjector("projector_shutter_close");
+                        }
+                        _myApplication.setPaused(true);
+                        myMessage = _myStopAppCommand;
+                    } else if (isCommand(myCommand, _myStartAppCommand)) {
+                        cerr << "Client received start application packet" << endl;
+                        _myLogger.logToFile( string( "Start application from Network" ));
+                        _myApplication.setPaused(false);
+                        if (_myShutterCloseProjectorsOnStop) {
+                            // open shutter on all connected projectors
+                            controlProjector("projector_shutter_open");
+                        }
+                        myMessage = _myStartAppCommand;
+                    } else if (isCommand(myCommand, _myStatusReportCommand)) {
+                        cerr << "Client received status report request" << endl;
+    
+                        ProcessResult myProcessResult = _myApplication.getProcessResult();
+    
+                        if ( myProcessResult == PR_FAILED ) {
+                            myMessage = "error application launch failed";
+                        } else if ( myProcessResult == PR_RUNNING ) {
+                            myMessage = (static_cast<unsigned>(_myApplication.getRuntime()) > _myStatusLoadingDelay)?"ok":"loading";
+                        } else if ( myProcessResult == PR_TERMINATED ) {
+                            myMessage = "error application terminated";
+                        }
+                    } else if (controlProjector(myCommand) == true) {
+                        // pass
+                    } else {
+                        cerr << "### UDPHaltListener: Unexpected packet '" << myCommand << "'. Ignoring" << endl;
+                        ostringstream myOss;
+                        myOss << "### UDPHaltListener: Unexpected packet '" << myCommand
+                            << "'. Ignoring";
+                        _myLogger.logToFile( myOss.str() );
                     }
-                    _myApplication.setPaused(true);
-                    myMessage = _myStopAppCommand;
-                } else if (isCommand(myCommand, _myStartAppCommand)) {
-                    cerr << "Client received start application packet" << endl;
-                    _myLogger.logToFile( string( "Start application from Network" ));
-                    _myApplication.setPaused(false);
-                    if (_myShutterCloseProjectorsOnStop) {
-                        // open shutter on all connected projectors
-                        controlProjector("projector_shutter_open");
-                    }
-                    myMessage = _myStartAppCommand;
-                } else if (isCommand(myCommand, _myStatusReportCommand)) {
-                    cerr << "Client received status report request" << endl;
-
-                    ProcessResult myProcessResult = _myApplication.getProcessResult();
-
-                    if ( myProcessResult == PR_FAILED ) {
-                        myMessage = "error application launch failed";
-                    } else if ( myProcessResult == PR_RUNNING ) {
-                        myMessage = (static_cast<unsigned>(_myApplication.getRuntime()) > _myStatusLoadingDelay)?"ok":"loading";
-                    } else if ( myProcessResult == PR_TERMINATED ) {
-                        myMessage = "error application terminated";
-                    }
-                } else if (controlProjector(myCommand) == true) {
-                    // pass
+                    sendReturnMessage(clientHost, myMessage);
                 } else {
-                    cerr << "### UDPHaltListener: Unexpected packet '" << myCommand << "'. Ignoring" << endl;
-                    ostringstream myOss;
-                    myOss << "### UDPHaltListener: Unexpected packet '" << myCommand
-                        << "'. Ignoring";
-                    _myLogger.logToFile( myOss.str() );
+                    AC_PRINT << "client host not allowed for ud pcontrol: " << asl::as_dotted_address(clientHost);
                 }
-                if ( ! myMessage.empty()) {
-                    myUDPServer.sendTo(clientHost, clientPort,
-                            myMessage.c_str(), myMessage.size());
-                    cerr << "send message to client: " << myMessage << endl;
-                }
-            } else {
-                AC_PRINT << "client host not allowed for ud pcontrol: " << asl::as_dotted_address(clientHost);
+            } catch (SocketException & se) {
+                cerr << "### UDPHaltListener: " << se.what() << endl;
+                ostringstream myOss;
+                myOss <<  "### UDPHaltListener: " << se.what();
+                _myLogger.logToFile( myOss.str() );
             }
         }
     } catch (SocketException & se) {
-        cerr << "### UDPHaltListener: " << se.what() << endl;
+        cerr << "### UDPHaltListener:loop " << se.what() << endl;
         ostringstream myOss;
-        myOss <<  "### UDPHaltListener: " << se.what();
+        myOss <<  "### UDPHaltListener:loop " << se.what();
         _myLogger.logToFile( myOss.str() );
     }
     cerr << "stopped udp command listener thread.\n";
