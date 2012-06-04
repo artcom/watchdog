@@ -456,6 +456,8 @@ main(int argc, char* argv[] ) {
 #endif
 
     ourArguments.addAllowedOptionsWithDocumentation(ourAllowedOptions);
+    ourArguments.setShortDescription("Default configfile: " + ourDefaultConfigFile);
+    
     if (!ourArguments.parse(argc, argv)) {
         return 0;
     }
