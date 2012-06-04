@@ -37,7 +37,7 @@ using namespace inet;
 using namespace std;
 
 inline bool isCommand(const std::string & theReceivedCommand, const std::string & theExpectedCommand) {
-	return (!theExpectedCommand.empty() && theReceivedCommand == theExpectedCommand);
+    return (!theExpectedCommand.empty() && theReceivedCommand == theExpectedCommand);
 }
 
 UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theProjectors,

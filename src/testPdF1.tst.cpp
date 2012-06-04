@@ -25,9 +25,9 @@ public:
 
     virtual void run() {
 
-	asl::Ptr<Projector> myProjector(Projector::getProjector("pdf1", myPort));
+        asl::Ptr<Projector> myProjector(Projector::getProjector("pdf1", myPort));
         ENSURE(myProjector != 0);
-	myProjector->powerUp();
+        myProjector->powerUp();
     }
 };
 
@@ -37,9 +37,9 @@ public:
 
     virtual void run() {
 
-	asl::Ptr<Projector> myProjector(Projector::getProjector("pdf1", myPort));
+        asl::Ptr<Projector> myProjector(Projector::getProjector("pdf1", myPort));
         ENSURE(myProjector != 0);
-	myProjector->selectInput("RGB_1");
+        myProjector->selectInput("RGB_1");
     }
 };
 
@@ -49,9 +49,9 @@ public:
 
     virtual void run() {
 
-	asl::Ptr<Projector> myProjector(Projector::getProjector("pdf1", myPort));
+        asl::Ptr<Projector> myProjector(Projector::getProjector("pdf1", myPort));
         ENSURE(myProjector != 0);
-	myProjector->powerDown();
+        myProjector->powerDown();
     }
 };
 

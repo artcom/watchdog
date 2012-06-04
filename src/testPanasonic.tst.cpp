@@ -24,9 +24,9 @@ public:
 
     virtual void run() {
 
-    	asl::Ptr<Projector> myProjector(Projector::getProjector("panasonic", myPort));
+        asl::Ptr<Projector> myProjector(Projector::getProjector("panasonic", myPort));
         ENSURE(myProjector != 0);
-    	myProjector->powerUp();
+        myProjector->powerUp();
     }
 };
 
@@ -69,8 +69,8 @@ int main( int argc, char *argv[] )
 #if 1
         mySuite.run();
 #else
-	    std::cerr<<"##### WARNING: tests disabled"<<std::endl;
-	    return 0;
+        std::cerr<<"##### WARNING: tests disabled"<<std::endl;
+        return 0;
 #endif
     }
     catch (const asl::Exception& e) {

@@ -276,14 +276,14 @@ PanasonicProjector::readFromDevice(unsigned theTimeout)
                 continue;
             }
         }
-		// XXX MAYBE RESET myTimeout=0
+        // XXX MAYBE RESET myTimeout=0
     }
 }
 
 void
 PanasonicProjector::parseResponse(const std::string & thePattern, const std::string & theParamName, const std::string & theUnit)
 {
-	std::stringstream s;
+    std::stringstream s;
     s << "PanasonicProjector " << theParamName;
     for (unsigned i = 0; i < _myResponses.size(); ++i) {
 
@@ -292,7 +292,7 @@ PanasonicProjector::parseResponse(const std::string & thePattern, const std::str
 
         s << " ID" << (i + _myFirstID) << ":";
         if (sscanf((char*) myData, thePattern.c_str(), &myValue) == 1) {
-			s << myValue << theUnit;
+            s << myValue << theUnit;
         }
         else {
             s << "??? (" << _myResponses[i] << ")";
@@ -300,9 +300,9 @@ PanasonicProjector::parseResponse(const std::string & thePattern, const std::str
     }
     //cerr << s.str() << endl;
 #if 1
-	if (getLogger()) {
-		getLogger()->logToFile(s.str());
-	}
+    if (getLogger()) {
+        getLogger()->logToFile(s.str());
+    }
 #endif
     _myResponses.clear();
 }

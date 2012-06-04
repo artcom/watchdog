@@ -113,7 +113,7 @@ Projector::selectInput(const std::string& theSource)
 {
     VideoSource mySource = getEnumFromString(theSource);
     if (mySource != NONE) {
-	    AC_PRINT << "Projector::selectInput " << theSource;
+        AC_PRINT << "Projector::selectInput " << theSource;
         selectInput(mySource);
     }
 }
@@ -178,7 +178,7 @@ Projector::Projector(int thePortNum, unsigned theBaud) :
         if (!_mySerialDevice) {
             throw asl::Exception("Failed to get serial device", PLUS_FILE_LINE);
         }
-	    //_mySerialDevice->setNoisy(true);
+        //_mySerialDevice->setNoisy(true);
     }
 }
 
