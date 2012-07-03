@@ -46,7 +46,7 @@ The Ubuntu way:
 
 #### Configure the build tree (this is the equivalent of ./configure)
 
-    cd _build/release
+    cd _builds/release
     cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../../
 
 #### Build the sources
@@ -199,7 +199,7 @@ Full featured Udpcontrol configuration node:
 
 Optional:  
 - \<IpWhitlelist> defines a list of ip-adresses, for which the watchdog allows udp control
-  and has children of \<Ip>-nodes that define thw whitelist. If defined only senderhost with the 
+  and has children of \<Ip>-nodes that define the whitelist. If defined only senderhost with the 
   configured ip will be accepted.
 
 - \<SystemHalt> will add the listener to the specified command, if a udp-packet with this content is accepted, the computer
