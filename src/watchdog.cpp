@@ -18,11 +18,19 @@
 //
 //=============================================================================
 
+#include "watchdog.h"
+
 #include <typeinfo>
 
-#include "watchdog.h"
-#include "system_functions.h"
-#include "Projector.h"
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#include <time.h>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+
 
 #include <asl/dom/Nodes.h>
 #include <asl/base/buildinfo.h>
@@ -39,15 +47,11 @@
 #   include <asl/base/signal_functions.h>
 #endif
 
+#include "system_functions.h"
+#include "Projector.h"
+#include "parse_helpers.h"
 
-#ifdef WIN32
-#include <windows.h>
-#endif
 
-#include <time.h>
-#include <iostream>
-#include <fstream>
-#include <algorithm>
 
 using namespace std;
 using namespace inet;
@@ -65,23 +69,6 @@ const asl::Arguments::AllowedOptionWithDocumentation ourAllowedOptions[] = {
     {"--revisions", "", "show component revisions"},
     {"", ""}
 };
-
-void
-readConfigFile(dom::Document & theConfigDoc,  std::string theFileName) {
-    AC_DEBUG << "Loading configuration data..." ;
-    std::string myFileStr = asl::readFile(theFileName);
-    if (myFileStr.empty()) {
-        cerr << "Watchdog::readConfigFile: Can't open configuration file "
-             << theFileName << "." << endl;
-        exit(-1);
-    }
-    theConfigDoc.parseAll(myFileStr.c_str());
-    if (!theConfigDoc) {
-        cerr << "Watchdog:::readConfigFile: Error reading configuration file "
-             << theFileName << "." << endl;
-        exit(-1);
-    }
-}
 
 WatchDog::WatchDog()
     : _myWatchFrequency(30),
@@ -451,7 +438,7 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 }
                 const dom::NodePtr & myApplicationNode = myApplicationConfigDoc.childNode("Application");
 
-                if (!_myAppToWatch.setup(myApplicationNode)) {
+                if (!_myAppToWatch.setup(myApplicationNode, myDirectory)) {
                     return false;
                 }
             } else {

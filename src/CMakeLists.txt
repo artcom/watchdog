@@ -29,6 +29,7 @@ HitachiProjector.cpp
 Logger.cpp
 NecProjector.cpp
 PanasonicProjector.cpp
+parse_helpers.cpp
 PdF1Projector.cpp
 Projector.cpp
 UDPCommandListenerThread.cpp
@@ -43,6 +44,7 @@ HitachiProjector.h
 Logger.h
 NecProjector.h
 PanasonicProjector.h
+parse_helpers.h
 PdF1Projector.h
 Projector.h
 UDPCommandListenerThread.h

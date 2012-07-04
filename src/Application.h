@@ -43,7 +43,7 @@ class Application {
         Application(Logger & theLogger);
         virtual ~Application();
 
-        bool setup(const dom::NodePtr & theAppNode);
+        bool setup(const dom::NodePtr & theAppNode, const std::string & theDirectory = "");
         bool checkForRestart( std::string & myRestartMessage );
         void launch();
         void checkHeartbeat();
@@ -75,6 +75,7 @@ class Application {
 
         std::map<std::string, std::string> _myEnvironmentVariables;
 
+        std::string      _myApplicationWatchdogDirectory;
         std::string      _myFileName;
         std::string      _myWorkingDirectory;
         std::vector<std::string> _myArguments;

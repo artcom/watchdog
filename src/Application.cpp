@@ -11,8 +11,6 @@
 
 
 #include "Application.h"
-#include "Logger.h"
-#include "system_functions.h"
 
 #include <ctime>
 #include <sstream>
@@ -25,6 +23,11 @@
 #include <asl/base/os_functions.h>
 #include <asl/base/proc_functions.h>
 #include <asl/base/Auto.h>
+
+#include "Logger.h"
+#include "system_functions.h"
+#include "parse_helpers.h"
+
 
 #ifdef WIN32
 #   include <Tlhelp32.h>
@@ -64,6 +67,7 @@ const std::string STARTUP_COUNT_ENV = "AC_STARTUP_COUNT";
 
 Application::Application(Logger & theLogger)
 :
+_myApplicationWatchdogDirectory(""),
 _myFileName(""),
 _myWorkingDirectory(""),
 _myWindowTitle(""),
@@ -91,7 +95,6 @@ _myLogger(theLogger),
 _myStartDelay(0),
 _myRestartDelay(10),
 _myStartupCount(0)
-
 {
 }
 
@@ -115,7 +118,10 @@ Application::setupEnvironment(const NodePtr & theEnvironmentSettings) {
     }
 }
 
-bool Application::setup(const dom::NodePtr & theAppNode) {
+bool Application::setup(const dom::NodePtr & theAppNode, const std::string & theDirectory) {
+    if (theDirectory.length() > 0) {
+        _myApplicationWatchdogDirectory = theDirectory;
+    }
     _myFileName = asl::expandEnvironment(theAppNode->getAttribute("binary")->nodeValue());
     AC_DEBUG <<"_myFileName: " << _myFileName;
     if (_myFileName.empty()){
@@ -279,12 +285,23 @@ Application::restart() {
 
 void
 Application::switchApplication(std::string theId) {
-    if (!paused()) {
-        asl::AutoLocker<asl::ThreadLock> myAutoLock(_myLock);
-        _myRecvRestart = true;
-    } else {
-       setPaused( false );
+    
+    dom::Document myApplicationConfigDoc;
+    readConfigFile(myApplicationConfigDoc, _myApplicationWatchdogDirectory + "/" + theId + ".xml");
+
+    if (!myApplicationConfigDoc("Application")) {
+        AC_WARNING << "application xml has no Application-node";
+        return;
     }
+    const dom::NodePtr & myApplicationNode = myApplicationConfigDoc.childNode("Application");
+
+    if (!setup(myApplicationNode)) {
+        AC_WARNING << "Application Instance might be currupted due to problems while setup for new application".
+        return;
+    }
+
+    asl::AutoLocker<asl::ThreadLock> myAutoLock(_myLock);
+    _myRecvRestart = true;
 }
 
 void
