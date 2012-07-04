@@ -143,6 +143,7 @@ bool Application::setup(const dom::NodePtr & theAppNode, const std::string & the
         AC_DEBUG << "finished setting up environment variables";
     }
     if (theAppNode->childNode("Arguments")) {
+        _myArguments.clear();
         const dom::NodePtr & myArguments = theAppNode->childNode("Arguments");
         AC_DEBUG << "arguments: " << myArguments;
         for (NodeList::size_type myArgumentNr = 0; myArgumentNr < myArguments->childNodesLength(); myArgumentNr++) {
