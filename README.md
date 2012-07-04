@@ -76,8 +76,20 @@ The smallest possible configuration is this:
 
 It will start the application 'calc.exe' check its status every 15 seconds and log all watchdog output to the logfile 'watch.log'.
 
+As an alternative to the Application-node you can configure a SwitchableApplications-node like this:
+
+    <SwitchableApplications directory="folder" initial="application_watchdog_file_name_without_extension"/>
+
+'directory' is where other xml-files for each application you want to switch to are located. These xml-Files contain *only* the Application-node as specified below. You can switch between these applications by sending the switch-command via UDP like this:
+    
+    switch/application_watchdog_file_name_without_extension
+
+where 'switch' is the command specified in the SwitchApplication-node. The application initially started by watchdog is given in the 'initial' attribute of the SwitchableApplications-node.
+
+
+
 The full feature set is divided in three categories:  
-1. The application startup configuration, timed restart commands and runtime checks, like memory cunsumption and heartbeat detecction.  
+1. The application startup configuration, timed restart commands and runtime checks, like memory consumption and heartbeat detection.  
 2. Systemcommand pre and post application execution and timed computer restart or shutdown   
 3. Udpcontrol interface for status and controlling of computer, application and a bunch of projectors (will be updated to a plugin infrastructure)  
 
