@@ -11,13 +11,13 @@
 
 
 #include "UDPCommandListenerThread.h"
-#include "system_functions.h"
-
-#include "Projector.h"
 
 #if !defined(_WIN32_WINNT)
 #define _WIN32_WINNT 0x500
 #endif
+
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 #include <asl/net/UDPSocket.h>
 #include <asl/net/net_functions.h>
@@ -30,6 +30,8 @@
 #endif
 
 #include "Application.h"
+#include "Projector.h"
+#include "system_functions.h"
 
 const asl::Unsigned16 MAX_PORT = 65535;
 
@@ -54,6 +56,7 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
     _myShutterCloseProjectorsOnReboot(false),
     _mySystemHaltCommand(""),
     _myRestartAppCommand(""),
+    _mySwitchAppCommand(""),
     _mySystemRebootCommand(""),
     _myStopAppCommand(""),
     _myStartAppCommand(""),
@@ -100,6 +103,13 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
         const dom::NodePtr & myRestartAppNode = theConfigNode->childNode("RestartApplication");
         _myRestartAppCommand = myRestartAppNode->getAttributeString("command");
         AC_DEBUG <<"_myRestartAppCommand: " << _myRestartAppCommand;
+    }
+
+    // check for application switch command configuration
+    if (theConfigNode->childNode("SwitchApplication")) {
+        const dom::NodePtr & mySwitchAppNode = theConfigNode->childNode("SwitchApplication");
+        _mySwitchAppCommand = mySwitchAppNode->getAttributeString("command");
+        AC_DEBUG <<"_mySwitchAppCommand: " << _mySwitchAppCommand;
     }
 
     // check for application stop command configuration
@@ -276,6 +286,7 @@ UDPCommandListenerThread::run() {
     cout << "      System Halt  : " << _mySystemHaltCommand << endl;
     cout << "      System Reboot: " << _mySystemRebootCommand << endl;
     cout << "Application restart: " << _myRestartAppCommand << endl;
+    cout << "Application switch : " << _mySwitchAppCommand << endl;
     cout << "Application stop   : " << _myStopAppCommand << endl;
     cout << "Application start  : " << _myStartAppCommand << endl;
 
@@ -295,6 +306,11 @@ UDPCommandListenerThread::run() {
                     std::istringstream myIss(myInputBuffer);
                     std::string myCommand;
                     std::getline(myIss, myCommand);
+                    std::vector<std::string> myArguments;
+                    boost::split(myArguments, myCommand, boost::is_any_of("/"));
+                    myCommand = myArguments[0];
+                    myArguments.erase(myArguments.begin());
+
                     std::string myMessage;
                     if (isCommand(myCommand, std::string("ping"))) {
                         myMessage = "pong";
@@ -314,6 +330,12 @@ UDPCommandListenerThread::run() {
                         cerr << "Client received restart application packet" << endl;
                         _myApplication.restart();
                         myMessage = _myRestartAppCommand;
+                    } else if (isCommand(myCommand, _mySwitchAppCommand) && myArguments.size() == 1) {
+                        cerr << "Client received switch application (id '" << myArguments[0] 
+                                << "') packet " << endl;
+                        std::string myId = myArguments[0];
+                        _myApplication.switchApplication(myId);
+                        myMessage = _mySwitchAppCommand;
                     } else if (isCommand(myCommand, _myStopAppCommand)) {
                         cerr << "Client received stop application packet" << endl;
                         _myLogger.logToFile( string( "Stop application from Network" ));

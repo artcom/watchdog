@@ -278,6 +278,16 @@ Application::restart() {
 }
 
 void
+Application::switchApplication(std::string theId) {
+    if (!paused()) {
+        asl::AutoLocker<asl::ThreadLock> myAutoLock(_myLock);
+        _myRecvRestart = true;
+    } else {
+       setPaused( false );
+    }
+}
+
+void
 Application::launch() {
     _myEnvironmentVariables[STARTUP_COUNT_ENV] = asl::as_string(++_myStartupCount);
     setEnvironmentVariables();

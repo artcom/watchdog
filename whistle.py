@@ -9,12 +9,11 @@ if (len(sys.argv) < 2):
     sys.exit(1)
 
 s = socket(AF_INET, SOCK_DGRAM)
-s.bind(('', 0))
+s.bind(('127.0.0.1', 2347))
 #s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
 s.sendto(sys.argv[1], ('localhost', UDP_PORT))
 print "broadcast '%s' to port %d" % (sys.argv[1], UDP_PORT)
 
-while 0<1:
-    print "receiving...."
-    data, addr = s.recvfrom( 1024 ) # buffer size is 1024 bytes
-    print "received message:", data    
+print "receiving answer ..."
+data, addr = s.recvfrom( 1024 ) # buffer size is 1024 bytes
+print "received message:", data    

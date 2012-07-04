@@ -44,6 +44,7 @@
         <SystemHalt powerDownProjectors="true" command="halt"/>    
         <SystemReboot shutterCloseProjectors="true" command="reboot"/>
         <RestartApplication command="restart_app"/>
+        <SwitchApplication command="switch_app"/>
         <StopApplication shutterCloseProjectors="true" command="firealarm_on"/>
         <StartApplication command="firealarm_off"/>
         <!--ProjectorControl powerUpOnStartup="true">
@@ -66,6 +67,9 @@
     </PreStartupCommand-->
     <!--<RebootTime>15:30</RebootTime>-->
     <!--<HaltTime>16:10</HaltTime>-->
+
+    <!-- you have to use SwitchApplications XOR Application -->
+    <SwitchableApplications directory="folder" initial="application_watchdog_file_name_without_extension"/>
     <Application binary="calc.exe" directory="D:\dev\git\Misc\obj\bin\Release">
         <EnvironmentVariables>
             <!--<EnvironmentVariable name="key"><![CDATA[value]]></EnvironmentVariable>-->

@@ -49,6 +49,7 @@ class Application {
         void checkHeartbeat();
         void checkState();
         void restart();
+        void switchApplication(std::string);
         void terminate(const std::string & theReason, bool theWMCloseAllowed);
         std::string runUntilNextCheck(int theWatchFrequency);
 

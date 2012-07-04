@@ -59,6 +59,7 @@ class UDPCommandListenerThread : public asl::PosixThread {
         bool                    _myShutterCloseProjectorsOnReboot;
         std::string             _mySystemHaltCommand;
         std::string             _myRestartAppCommand;
+        std::string             _mySwitchAppCommand;
         std::string             _mySystemRebootCommand;
         std::string             _myStopAppCommand;
         std::string             _myStartAppCommand;

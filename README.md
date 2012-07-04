@@ -177,7 +177,7 @@ Fully Optional nodes:
 
 Full featured Udpcontrol configuration node:
 
-    <UdpControl port="2346">
+    <UdpControl port="2346" returnport="6667">
         <IpWhitlelist>
             <Ip>10.1.3.91</Ip>
             <Ip>127.0.0.1</Ip>
@@ -185,6 +185,7 @@ Full featured Udpcontrol configuration node:
         <SystemHalt powerDownProjectors="true" command="halt"/>    
         <SystemReboot shutterCloseProjectors="true" command="reboot"/>
         <RestartApplication command="restart_app"/>
+        <SwitchApplication command="switch_app"/>
         <StopApplication shutterCloseProjectors="true" command="firealarm_on"/>
         <StartApplication command="firealarm_off"/>
         <ProjectorControl powerUpOnStartup="true">
@@ -195,7 +196,10 @@ Full featured Udpcontrol configuration node:
     </UdpControl>
 
 - The \<UdpControl> root-node enabled the udp control functionality of the watchdog
-  Attributes: \<port>    - port the watchdog will listen to
+  Attributes: 
+    \<port>    - port the watchdog will listen to
+    optional: 
+        \<returnport>    - port the watchdog will answer to
 
 Optional:  
 - \<IpWhitlelist> defines a list of ip-adresses, for which the watchdog allows udp control
@@ -208,6 +212,8 @@ Optional:
 - \<SystemReboot> will add the listener to the specified command, if a udp-packet with this content is accepted, the computer will reboot
 
 - \<RestartApplication> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog will restart the application
+
+- \<SwitchApplication> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog will restart the application with the watchdog-file identified by 'id'.
 
 - \<StopApplication> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog will stop the application
 

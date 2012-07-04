@@ -66,6 +66,23 @@ const asl::Arguments::AllowedOptionWithDocumentation ourAllowedOptions[] = {
     {"", ""}
 };
 
+void
+readConfigFile(dom::Document & theConfigDoc,  std::string theFileName) {
+    AC_DEBUG << "Loading configuration data..." ;
+    std::string myFileStr = asl::readFile(theFileName);
+    if (myFileStr.empty()) {
+        cerr << "Watchdog::readConfigFile: Can't open configuration file "
+             << theFileName << "." << endl;
+        exit(-1);
+    }
+    theConfigDoc.parseAll(myFileStr.c_str());
+    if (!theConfigDoc) {
+        cerr << "Watchdog:::readConfigFile: Error reading configuration file "
+             << theFileName << "." << endl;
+        exit(-1);
+    }
+}
+
 WatchDog::WatchDog()
     : _myWatchFrequency(30),
       _myStartupCommand(""),
@@ -419,6 +436,26 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 if (!_myAppToWatch.setup(myApplicationNode)) {
                     return false;
                 }
+            } else if (myConfigNode->childNode("SwitchableApplications")) {
+                const dom::NodePtr & mySwitchableApplicationsNode = myConfigNode->childNode("SwitchableApplications");
+
+                std::string myDirectory = mySwitchableApplicationsNode->getAttribute("directory")->nodeValue();
+                std::string myInitialApplication = mySwitchableApplicationsNode->getAttribute("initial")->nodeValue();
+
+                dom::Document myApplicationConfigDoc;
+                readConfigFile(myApplicationConfigDoc, myDirectory + "/" + myInitialApplication + ".xml");
+
+                if (!myApplicationConfigDoc("Application")) {
+                    AC_WARNING << "application xml has no Application-node";
+                    return false;
+                }
+                const dom::NodePtr & myApplicationNode = myApplicationConfigDoc.childNode("Application");
+
+                if (!_myAppToWatch.setup(myApplicationNode)) {
+                    return false;
+                }
+            } else {
+                AC_WARNING << "xml document should have either Application or SwitchableApplications node";
             }
         }
 
@@ -429,23 +466,6 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
         exit(-1);
     }
     return true;
-}
-
-void
-readConfigFile(dom::Document & theConfigDoc,  std::string theFileName) {
-    AC_DEBUG << "Loading configuration data..." ;
-    std::string myFileStr = asl::readFile(theFileName);
-    if (myFileStr.empty()) {
-        cerr << "Watchdog::readConfigFile: Can't open configuration file "
-             << theFileName << "." << endl;
-        exit(-1);
-    }
-    theConfigDoc.parseAll(myFileStr.c_str());
-    if (!theConfigDoc) {
-        cerr << "Watchdog:::readConfigFile: Error reading configuration file "
-             << theFileName << "." << endl;
-        exit(-1);
-    }
 }
 
 int
