@@ -296,7 +296,7 @@ Application::switchApplication(std::string theId) {
     const dom::NodePtr & myApplicationNode = myApplicationConfigDoc.childNode("Application");
 
     if (!setup(myApplicationNode)) {
-        AC_WARNING << "Application Instance might be currupted due to problems while setup for new application".
+        AC_WARNING << "Application instance might be corrupted due to problems while setup for new application";
         return;
     }
 

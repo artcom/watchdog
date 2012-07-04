@@ -64,7 +64,8 @@ const string ourDefaultConfigFile = "watchdog.xml";
 
 asl::Arguments ourArguments;
 const asl::Arguments::AllowedOptionWithDocumentation ourAllowedOptions[] = {
-    {"--configfile", "watchdog.xml", "XML configuration file"},
+    {"", "watchdog.xml", "XML configuration file"},
+    {"--configfile", "watchdog.xml", "XML configuration file. DEPRECATED. Use argument to specify xml-file instead."},
     {"--no_restart", "", "start only once, do not restart"},
     {"--revisions", "", "show component revisions"},
     {"", ""}
@@ -478,8 +479,17 @@ main(int argc, char* argv[] ) {
     if (ourArguments.haveOption("--no_restart")) {
         myRestartAppFlag = false;
     }
-    if (ourArguments.haveOption("--configfile")) {
+
+    if (ourArguments.getCount() > 0) {
+        readConfigFile (myConfigDoc, ourArguments.getArgument(0));
+
+
+    //deprecated
+    } else if (ourArguments.haveOption("--configfile")) {
+        AC_WARNING << "using --configfile-option is deprecated. Use argument instead.";
         readConfigFile (myConfigDoc, ourArguments.getOptionArgument("--configfile"));
+
+
     } else {
         if (asl::fileExists(ourDefaultConfigFile)) {
             readConfigFile (myConfigDoc, ourDefaultConfigFile);
