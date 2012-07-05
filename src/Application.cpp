@@ -288,7 +288,11 @@ void
 Application::switchApplication(std::string theId) {
     
     dom::Document myApplicationConfigDoc;
-    readConfigFile(myApplicationConfigDoc, _myApplicationWatchdogDirectory + "/" + theId + ".xml");
+    bool ok = readConfigFile(myApplicationConfigDoc, _myApplicationWatchdogDirectory + "/" + theId + ".xml");
+    if (!ok) {
+        AC_WARNING << "config file for id '" << theId << "' could not be opened. IGNORE.";
+        return;
+    }
 
     if (!myApplicationConfigDoc("Application")) {
         AC_WARNING << "application xml has no Application-node";

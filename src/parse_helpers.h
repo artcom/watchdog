@@ -16,7 +16,7 @@
 #include <string>
 #include <asl/dom/Nodes.h>
 
-void readConfigFile(dom::Document & theConfigDoc,  std::string theFileName);
+bool readConfigFile(dom::Document & theConfigDoc,  std::string theFileName);
 
 #endif
 

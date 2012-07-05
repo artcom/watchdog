@@ -431,7 +431,11 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 std::string myInitialApplication = mySwitchableApplicationsNode->getAttribute("initial")->nodeValue();
 
                 dom::Document myApplicationConfigDoc;
-                readConfigFile(myApplicationConfigDoc, myDirectory + "/" + myInitialApplication + ".xml");
+                bool ok = readConfigFile(myApplicationConfigDoc, myDirectory + "/" + myInitialApplication + ".xml");
+                if (!ok) {
+                    AC_WARNING << "configuration file for id '" << myInitialApplication << "' could not be opened.";
+                    return false;
+                }
 
                 if (!myApplicationConfigDoc("Application")) {
                     AC_WARNING << "application xml has no Application-node";
@@ -481,13 +485,19 @@ main(int argc, char* argv[] ) {
     }
 
     if (ourArguments.getCount() > 0) {
-        readConfigFile (myConfigDoc, ourArguments.getArgument(0));
+        bool ok = readConfigFile (myConfigDoc, ourArguments.getArgument(0));
+        if (!ok) {
+            AC_ERROR << "given config file '" << ourArguments.getArgument(0) << "' could not be read. exit.";
+        }
 
 
     //deprecated
     } else if (ourArguments.haveOption("--configfile")) {
         AC_WARNING << "using --configfile-option is deprecated. Use argument instead.";
-        readConfigFile (myConfigDoc, ourArguments.getOptionArgument("--configfile"));
+        bool ok = readConfigFile (myConfigDoc, ourArguments.getOptionArgument("--configfile"));
+        if (!ok) {
+            AC_ERROR << "given config file '" << ourArguments.getOptionArgument("--configfile") << "' could not be read. exit.";
+        }
 
 
     } else {

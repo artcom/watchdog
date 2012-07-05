@@ -14,25 +14,35 @@
 
 #include <iostream>
 
-#include <asl/base/string_functions.h>
 #include <asl/base/file_functions.h>
+#include <asl/base/os_functions.h>
 
 
 
-void
+bool
 readConfigFile(dom::Document & theConfigDoc,  std::string theFileName) {
     AC_DEBUG << "Loading configuration data..." ;
-    std::string myFileStr = asl::readFile(theFileName);
+
+    std::string myFileName = asl::expandEnvironment(theFileName);
+    AC_DEBUG <<"fileName: " << myFileName;
+    if (myFileName.empty()) {
+        AC_DEBUG << "Watchdog::readConfigFile: Can't open configuration file "
+             << myFileName << "." << std::endl;
+        return false;
+    }
+
+    std::string myFileStr = asl::readFile(myFileName);
     if (myFileStr.empty()) {
-        std::cerr << "Watchdog::readConfigFile: Can't open configuration file "
-             << theFileName << "." << std::endl;
-        exit(-1);
+        AC_DEBUG << "Watchdog::readConfigFile: Can't open configuration file "
+             << myFileName << "." << std::endl;
+        return false;
     }
     theConfigDoc.parseAll(myFileStr.c_str());
     if (!theConfigDoc) {
-        std::cerr << "Watchdog:::readConfigFile: Error reading configuration file "
-             << theFileName << "." << std::endl;
-        exit(-1);
+        AC_DEBUG << "Watchdog:::readConfigFile: Error reading configuration file "
+             << myFileName << "." << std::endl;
+        return false;
     }
+    return true;
 }
 
