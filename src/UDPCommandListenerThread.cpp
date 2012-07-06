@@ -49,6 +49,7 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
                                                    std::string & theShutdownCommand)
 :   _myProjectors(theProjectors),
     _myUDPPort(2342),
+    _myReturnMessagePort(-1),
     _myApplication(theApplication),
     _myLogger(theLogger),
     _myPowerDownProjectorsOnHalt(false),
@@ -62,7 +63,6 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
     _myStartAppCommand(""),
     _myStatusReportCommand(""),
     _myStatusLoadingDelay(0), 
-    _myReturnMessagePort(-1),
     _myShutdownCommand(theShutdownCommand)
 {
     // check for UDP port
