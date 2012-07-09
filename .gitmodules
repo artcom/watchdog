@@ -1,6 +1,0 @@
-[submodule "asl"]
-	path = asl
-	url = gitorious@gitorious.intern.artcom.de:pro/asl.git
-[submodule "acmake"]
-	path = acmake
-	url = gitorious@gitorious.intern.artcom.de:pro/acmake.git
