@@ -2,17 +2,8 @@ cmake_minimum_required(VERSION 2.6.2)
 
 project(Watchdog)
 
-# tell acmake that it is being used in integrated mode
-set(ACMAKE_INTEGRATED_BUILD YES)
-
-# set the global default buildinfo template
-set(ACMAKE_BUILDINFO_TEMPLATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/asl/base/buildinfo.cpp.in)
-
-# add acmake to build
-list(INSERT CMAKE_PREFIX_PATH 0 ${CMAKE_BINARY_DIR})
-add_subdirectory(acmake)
-find_package(AcMake)
+#find_package(AcMake)
+#find_package(ASL)
 
 # declare our packaging solution
 ac_begin_solution(
@@ -28,7 +19,6 @@ ac_begin_solution(
     UNINSTALLER_ICON "${CMAKE_SOURCE_DIR}/installer/windows/shopping_bag_grey.ico"
 )
 
-add_subdirectory(asl)
 add_subdirectory(src)
 ac_end_solution(Watchdog)
 
