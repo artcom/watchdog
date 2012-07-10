@@ -68,5 +68,6 @@ ac_add_executable(
     SOURCES ${SOURCES}
     HEADERS ${HEADERS}  
     DEPENDS aslbase aslnet asldom aslserial
+    INSTALL_COMPONENT ${RUNTIME_COMPONENT}
 )
 ac_end_project(Watchdog)

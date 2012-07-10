@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.6.2)
 
 project(Watchdog)
 
-#find_package(AcMake)
-#find_package(ASL)
+find_package(AcMake)
+find_package(ASL)
 
 # declare our packaging solution
 ac_begin_solution(
@@ -19,7 +19,20 @@ ac_begin_solution(
     UNINSTALLER_ICON "${CMAKE_SOURCE_DIR}/installer/windows/shopping_bag_grey.ico"
 )
 
+
+# declare cpack components
+set(RUNTIME_COMPONENT Watchdog_runtime)
+set(DEVELOPMENT_COMPONENT Watchdog_development)
+
 add_subdirectory(src)
+
+cpack_add_component( ${RUNTIME_COMPONENT}
+            DISPLAY_NAME "Runtime"
+            DESCRIPTION "runtime libraries" REQUIRED)
+cpack_add_component( ${DEVELOPMENT_COMPONENT}
+            DISPLAY_NAME "Development"
+            DESCRIPTION "header files and import libraries")
+            
 ac_end_solution(Watchdog)
 
 
