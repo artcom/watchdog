@@ -17,10 +17,10 @@ find_package(AcMake)
 # declare our packaging solution
 ac_begin_solution(
     Watchdog
-    VERSION_MAJOR 1 VERSION_MINOR 0 VERSION_PATCH 6
+    VERSION_MAJOR 1 VERSION_MINOR 0 VERSION_PATCH 7
     DESCRIPTION  "Watchdog"
     VENDOR       "ART+COM AG"
-    CONTACT      "y60@artcom.de"
+    CONTACT      "info@artcom.de"
     DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/DESCRIPTION.txt"
     LICENSE_FILE     "${CMAKE_SOURCE_DIR}/LICENSE.txt"
     PACKAGE_ICON     "${CMAKE_SOURCE_DIR}/installer/windows/NSIS-Header.bmp"

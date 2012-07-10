@@ -17,7 +17,7 @@ ac_add_project(
     DISPLAY_NAME "Watchdog"
     VENDOR "ART+COM AG"
     CONTACT "info@artcom.de"
-    DESCRIPTION "ARTCOM AG Watchdog"
+    DESCRIPTION "ART+COM AG Watchdog"
 )
 
 
