@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default-recipe="GNU Make">
+    
+    <property name="build.root" value="_builds"/>
+    <property name="ctest.log.dir" value="Testing/Temporary/"/>
+
+    <post-processor name="cmake.pp">
+        <regex.pp name="cmake_error.pp" trailing-context="10" fail-on-error="false">
+            <pattern category="error" expression="^CMake Error"/>
+        </regex.pp>
+        <regex.pp name="cmake_warning.pp" trailing-context="10">
+            <pattern category="warning" expression="CMake Warning"/>
+        </regex.pp>
+        <regex.pp name="cmake_config_warning.pp">
+            <pattern category="warning" expression="^ -- Could NOT find"/>
+            <pattern category="warning" expression="- NOT found"/>
+        </regex.pp>
+    </post-processor>
+
+    <gcc.pp name="gcc.pp"/>
+
+    <msbuild.pp name="msbuild.pp"/>
+
+    <regex-test.pp name="ctest.pp" name-group="3" status-group="4" details-group="5" pass-status="Passed" failure-status="***"><![CDATA[^\\s*\\d+/\\d+\\s+Test(ing)?\\s+(#\\d+:\\s+)?(\\w+)[ .]*(\\*\\*\\*|Passed)(.*)\$]]></regex-test.pp>
+
+    <macro name="run_cmake">
+        <executable name="create_build_dir" exe="${cmake.bin}" args="-E make_directory ${build.dir}"/>
+        <executable name="flush_cmake_cache" exe="${cmake.bin}" working-dir="${build.dir}" args="-E remove CMakeCache.txt"/>
+        <executable exe="${cmake.bin}" working-dir="${build.dir}" args="${cmake.recipe.args} ${cmake.agent.args} ${cmake.extra.args}" name="configure">
+                <arg>-G</arg><arg>${cmake.generator}</arg>
+                <arg>-D</arg><arg>CMAKE_VERBOSE_MAKEFILE=1</arg>
+                <arg>${cmake.source.dir}</arg>
+
+                <process processor="${cmake.pp}"/>
+            </executable>
+    </macro>
+
+    <macro name="run_ctest">
+        <executable exe="${ctest.bin}" args="${ctest.agent.args} ${ctest.extra.args}" working-dir="${build.dir}" name="test">
+            
+                <process processor="${ctest.pp}"/>
+            
+            <dir-artifact name="test output" base="${build.dir}/${ctest.log.dir}"/>
+        </executable>
+    </macro>
+
+    <macro name="run_gmake_build">
+        <make args="-j ${parallel.jobs} VERBOSE=1" working-dir="${build.dir}" name="build">
+                <process processor="${gcc.pp}"/>
+            </make>
+    </macro>
+
+    <macro name="run_nmake_build">
+        <executable exe="${vs.nmake.bin}" working-dir="${build.dir}" name="build">
+                <process processor="${msbuild.pp}"/>
+            </executable>
+    </macro>
+
+    <macro name="run_cpack_windows">
+        <executable exe="${cpack.bin}" args="${cpack.agent.args} ${cpack.extra.args}" working-dir="${build.dir}" name="package">
+            
+            <artifact ignore-stale="true" name="installer" file="${build.dir}/Watchdog-*.*.*-win32.exe"/>
+            <artifact ignore-stale="true" name="binary-zip" file="${build.dir}/Watchdog-*.*.*-win32.zip"/>
+        </executable>
+    </macro>
+
+    <macro name="run_cpack_linux">
+        <executable exe="${cpack.bin}" args="${cpack.agent.args} ${cpack.extra.args}" working-dir="${build.dir}" name="package">
+            
+            <artifact ignore-stale="true" name="package-rpm" file="${build.dir}/Watchdog-*.*.*-Linux.rpm"/>
+            <artifact ignore-stale="true" name="package-deb" file="${build.dir}/Watchdog-*.*.*-Linux.deb"/>
+            <artifact ignore-stale="true" name="binary-tbz2" file="${build.dir}/Watchdog-*.*.*-Linux.tar.bz2"/>
+            <artifact ignore-stale="true" name="binary-tgz" file="${build.dir}/Watchdog-*.*.*-Linux.tar.gz"/>
+        </executable>
+    </macro>
+
+    <!-- single configuration CMake generators (make,nmake,etc) -->
+    <scope>
+        <property name="build.dir" value="${build.root}/${build.type}"/>
+        <property name="cmake.source.dir" value="../.."/> 
+        <property name="cmake.recipe.args" value="-D CMAKE_BUILD_TYPE=${build.type}"/>
+
+        <recipe name="GMake Linux Continuous">
+            <property name="cmake.generator" value="Unix Makefiles"/>
+
+            <macro-ref macro="${run_cmake}"/>
+            <macro-ref macro="${run_gmake_build}"/>
+            <macro-ref macro="${run_ctest}"/>
+        </recipe>
+
+        <recipe name="GMake Linux Nightly">
+            <property name="cmake.generator" value="Unix Makefiles"/>
+
+            <macro-ref macro="${run_cmake}"/>
+            <macro-ref macro="${run_gmake_build}"/>
+            <macro-ref macro="${run_ctest}"/>
+            <macro-ref macro="${run_cpack_linux}"/>
+        </recipe>
+
+        <recipe name="GMake OSX Continuous">
+            <property name="cmake.generator" value="Unix Makefiles"/>
+
+            <macro-ref macro="${run_cmake}"/>
+            <macro-ref macro="${run_gmake_build}"/>
+            <macro-ref macro="${run_ctest}"/>
+        </recipe>
+
+        <recipe name="GMake OSX Nightly">
+            <property name="cmake.generator" value="Unix Makefiles"/>
+
+            <macro-ref macro="${run_cmake}"/>
+            <macro-ref macro="${run_gmake_build}"/>
+            <macro-ref macro="${run_ctest}"/>
+        </recipe>
+
+        <recipe name="NMake Continuous">
+            
+            <property name="cmake.generator" value="NMake Makefiles"/>
+
+            <property name="cmake.recipe.args" value="${cmake.recipe.args} -D ACMAKE_PARALLEL_CL=${parallel.jobs}"/>
+
+            <macro-ref macro="${run_cmake}"/>
+            <macro-ref macro="${run_nmake_build}"/>
+            <macro-ref macro="${run_ctest}"/>
+        </recipe>
+
+        <recipe name="NMake Nightly">
+            
+            <property name="cmake.generator" value="NMake Makefiles"/>
+
+            <property name="cmake.recipe.args" value="${cmake.recipe.args} -D ACMAKE_PARALLEL_CL=${parallel.jobs}"/>
+
+            <macro-ref macro="${run_cmake}"/>
+            <macro-ref macro="${run_nmake_build}"/>
+            <macro-ref macro="${run_ctest}"/>
+            <macro-ref macro="${run_cpack_windows}"/>
+        </recipe>
+    </scope>
+
+    <!-- multi configuration CMake generators (MSVC,Xcode) -->
+    <scope>
+        <property name="build.dir" value="${build.root}"/>
+        <property name="cmake.source.dir" value=".."/>
+        <property name="cmake.recipe.args" value=""/>
+
+        <recipe name="MSVC">
+            
+            
+            <property name="cmake.generator" value="${vs.cmake.generator}"/>
+
+            <macro-ref macro="${run_cmake}"/>
+
+            <executable exe="${vs.vcbuild.bin}" working-dir="${build.dir}" name="build">
+                    <arg>/M$(parallel.jobs:1)</arg>
+                    <arg>${vcbuild.solution.file}</arg>
+                    <arg>"${build.type}|${win32.vcbuild.platform}"</arg>
+
+                    <process processor="${msbuild.pp}"/>
+                </executable>
+
+            <macro-ref macro="${run_ctest}"/>
+        </recipe>
+    </scope>
+</project>
