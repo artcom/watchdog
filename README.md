@@ -1,25 +1,31 @@
 The ART+COM AG Watchdog is a utility to start, watch and control applications and computer. It has a interface to control its functionality via udp-network packets. 
 It is open-source and available for windows, linux and mac-osx. 
 
-# Checkout
-Checkout watchdog sources and initiate submodules like this:
+# Prebuild Windows 32 Bit binary
+- get the latest installer Watchdog-*.*.*-win32.exe from [[https://y60.artcom.de/redmine/projects/y60/files]]
+- get the appropriate dependencies: PRO60Dependencies-*.*.*-win32.exe
+- get the appropriate asl library: ASL-*.*.*-win32.exe
+
+# Build from sources
+## Checkout
+Checkout watchdog sources
  
     git clone git@github.com:artcom/watchdog.git
-    cd watchdog
-    git submodule init  
-    git submodule update  
 
-
-# Build
-### Windows
+### Build on Windows
 #### Prerequisits
 - Visual Studio Express 9 2008, 32Bit
 - CMAKE Version 2.8 or higher
-- PRO60 Dependencies: [[https://y60.artcom.de/redmine/attachments/download/146/PRO60Dependencies-1.0.6-win32.exe]]
+from [[https://y60.artcom.de/redmine/projects/y60/files]]
+- get the latest dependencies: PRO60Dependencies-*.*.*-win32.exe
+- get the appropriate asl library: ASL-*.*.*-win32.exe
+- get the appropriate acmake library: AcMake-*.*.*-win32.exe
+and install them
 
 #### Build process
 Create build target directory:
   
+    cd watchdog
     mkdir obj  
     cd obj  
 
@@ -40,8 +46,13 @@ The Ubuntu way:
 
      sudo apt-get install build-essential autoconf2.13 cmake libboost-dev libglib2.0-dev libcurl4-openssl-dev libasound2-dev
 
-#### Create yourself a build directory (you will need one per build configuration)
+#### get dependent libraries
+    git clone git@github.com:artcom/acmake.git
+    git clone git@github.com:artcom/asl.git
 
+do the following steps for acmake, asl, watchdog
+#### Create yourself a build directory (you will need one per build configuration)
+    cd [project]
     mkdir -p _builds/release
 
 #### Configure the build tree (this is the equivalent of ./configure)
@@ -53,12 +64,32 @@ The Ubuntu way:
 
     make -jX
 
-### Mac
+#### Install [project]
+
+    make -jX
+
+### Mac OS X with Homebrew
+
+We have Homebrew [[http://mxcl.github.com/homebrew/]] support. This makes installing on Mac OS X easier than ever!
+
+#### Prerequisites:
+
+- Homebrew Installation: [[https://github.com/mxcl/homebrew/wiki/installation]]
+
+#### Now pull the ART+COM homebrew fork:
+
+    brew update
+    cd $(brew --repository)
+    git pull git@github.com:artcom/homebrew.git
+
+#### Now simply install watchdog:
+
+    brew install watchdog
 
 # Usage
 The commandline usage: i.e. with windows executable:
 
-    'watchdog.exe [--configfile <watchdog.xml>] [--help] [--no_restart]'  
+    'watchdog.exe [--configfile <watchdog.xml>] [--copyright] [--help] [--no_restart] [--revision] [--revisions] [--version] watchdog.XML'  
   
 The default configfile will be loaded in current working directoy with name 'watchdog.xml', the parameter '--configfile <watchdog.xml>' will use given configfile.  
 The common watchdog behaviour is to restart application once they exit by any reason, to prevent this use the '--no_restart' flag, which will exit the watchdog after application finish.
