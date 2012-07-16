@@ -17,9 +17,9 @@
 
 #include "Logger.h"
 
-#include <ctime>
 #include <iostream>
 #include <asl/base/Auto.h>
+#include <asl/base/Time.h>
 
 using namespace std;
 
@@ -56,11 +56,11 @@ void
 Logger::logToFile(const string& theMessage) {
     asl::AutoLocker<asl::ThreadLock> myLocker(_myLock);
     if (_myFile) {
-        time_t myTime;
-        time(&myTime);
-        struct tm * myPrintableTime = localtime(&myTime);
-        (*_myFile) << asctime(myPrintableTime)
-                   << "threadid: " << std::hex << (size_t)pthread_self() << std::dec << "\n"
+        static const char * myFormatString("%Y-%M-%D %h:%m:%s");
+        asl::Time now;
+        (*_myFile) << asl::formatTime(myFormatString)
+                   << now
+                   << "\n threadid: " << std::hex << (size_t)pthread_self() << std::dec << "\n"
                    << theMessage << "\n"
                    << "---------------------------------------------------------------------" << endl;
     }

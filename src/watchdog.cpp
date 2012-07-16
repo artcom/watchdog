@@ -26,7 +26,6 @@
 #include <windows.h>
 #endif
 
-#include <time.h>
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -309,18 +308,11 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 if (myDotPos == std::string::npos) {
                     myDotPos = _myLogFilename.size();
                 }
-#if defined(LINUX) || defined(OSX)
-                time_t ltime = time(NULL);
-                struct tm* today = localtime(&ltime);
-#else
-                __time64_t ltime;
-                _time64( &ltime );
-                struct tm *today = _localtime64( &ltime );
-#endif
-                char myTmpBuf[128];
-                strftime(myTmpBuf, sizeof(myTmpBuf), "%Y_%m_%d_%H_%M", today);
-                _myLogFilename = _myLogFilename.substr(0, myDotPos) + "_" + myTmpBuf + _myLogFilename.substr(myDotPos, _myLogFilename.size());
-                AC_DEBUG <<"_myLogFilename: " << _myLogFilename;
+                asl::Time now;
+                static const char * myFormatString("%Y-%M-%D-%h-%m");
+                std::ostringstream myTimeString;
+                myTimeString << asl::formatTime(myFormatString) << now;
+                _myLogFilename = _myLogFilename.substr(0, myDotPos) + "_" + myTimeString.str() + _myLogFilename.substr(myDotPos, _myLogFilename.size());
                 _myLogger.openLogFile(_myLogFilename);
             }
 
