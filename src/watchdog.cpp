@@ -383,7 +383,7 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                         _myContinuousStateChangePort  = as<int>(myPortAttribute->nodeValue());
                     }
                     if (_myContinuousStateChangeIP != "" && _myContinuousStateChangePort!=-1) {
-                        AC_PRINT << "Continuous state change will will be send to IP: '" << _myContinuousStateChangeIP << "' port :" << _myContinuousStateChangePort;
+                        AC_INFO << "Continuous state change will will be send to IP: '" << _myContinuousStateChangeIP << "' port :" << _myContinuousStateChangePort;
                     }
                 }
 
