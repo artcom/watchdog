@@ -39,6 +39,10 @@ typedef asl::ProcessID ProcessResult;
     };
     typedef PROCESS_INFORMATION ProcessInfo;
     typedef DWORD ErrorNumber;
+
+    //showWindow options
+    const std::string MINIMIZED = "minimized";
+
 #elif defined(LINUX) || defined(OSX)
     enum {
         PR_RUNNING,
@@ -58,6 +62,9 @@ ProcessResult waitForApp( const ProcessInfo & theProcessInfo, int theTimeout, Lo
 bool launchApp( const std::string & theFileName,
                 const std::vector<std::string> & theArguments,
                 const std::string & theWorkingDirectory,
+#ifdef WIN32
+                const std::string & theShowWindowMode,
+#endif
                 ProcessInfo & theProcessInfo);
 void closeApp( const std::string & theWindowTitle, const ProcessInfo & theProcessInfo,
                Logger & theLogger);

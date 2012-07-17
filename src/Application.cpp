@@ -71,6 +71,9 @@ _myApplicationWatchdogDirectory(""),
 _myFileName(""),
 _myWorkingDirectory(""),
 _myWindowTitle(""),
+#ifdef WIN32
+_myShowWindowMode(""),
+#endif
 _myAppStartTimeInSeconds(0),
 _myRecvRestart(false),
 _myAllowMissingHeartbeats(3),
@@ -133,6 +136,14 @@ bool Application::setup(const dom::NodePtr & theAppNode, const std::string & the
         _myWindowTitle = theAppNode->getAttribute("windowtitle")->nodeValue();
         AC_DEBUG <<"_myWindowTitle: " << _myWindowTitle;
     }
+    if (theAppNode->getAttribute("showWindow")) {
+#ifdef WIN32
+        _myShowWindowMode = theAppNode->getAttribute("showWindow")->nodeValue();
+        AC_DEBUG << "_myShowWindowMode: " << _myShowWindowMode;
+#else
+        AC_WARNING << "showWindow attribute is ignored for all OS except windows";
+#endif
+    }
     if (theAppNode->getAttribute("directory")) {
         _myWorkingDirectory = asl::expandEnvironment(
             theAppNode->getAttribute("directory")->nodeValue() );
@@ -142,8 +153,8 @@ bool Application::setup(const dom::NodePtr & theAppNode, const std::string & the
         setupEnvironment(theAppNode->childNode("EnvironmentVariables"));
         AC_DEBUG << "finished setting up environment variables";
     }
+    _myArguments.clear();
     if (theAppNode->childNode("Arguments")) {
-        _myArguments.clear();
         const dom::NodePtr & myArguments = theAppNode->childNode("Arguments");
         AC_DEBUG << "arguments: " << myArguments;
         for (NodeList::size_type myArgumentNr = 0; myArgumentNr < myArguments->childNodesLength(); myArgumentNr++) {
@@ -315,6 +326,9 @@ Application::launch() {
     setEnvironmentVariables();
 
     bool myResult = launchApp( _myFileName, _myArguments, _myWorkingDirectory,
+#ifdef WIN32
+                               _myShowWindowMode,
+#endif
                                _myProcessInfo );
 
     std::string myCommandLine = _myFileName + " " + getArguments();

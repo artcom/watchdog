@@ -134,14 +134,14 @@ The feature set in Detail:
 
 Full featured application configuration node:
 
-    <Application binary="calc.exe" directory="">
+    <Application binary="calc.exe" directory="" showWindow="maximized|minimized">
         <EnvironmentVariables>
             <!--<EnvironmentVariable name="key"><![CDATA[value]]></EnvironmentVariable>-->
         </EnvironmentVariables>
         <Arguments>
             <Argument>test.txt</Argument>
         </Arguments>
-        <<Heartbeat>
+        <Heartbeat>
             <Heartbeat_File>${TEMP}/heartbeat.xml</Heartbeat_File>
             <Allow_Missing_Heartbeats>5</Allow_Missing_Heartbeats>
             <Heartbeat_Frequency>1</Heartbeat_Frequency>
@@ -157,8 +157,9 @@ Full featured application configuration node:
     </Application>
     
 - The \<Application> root-node defines the app to execute and watch
-  Attributes: \<binary>    - defines the binary filename
-              \<directory> - watchdog changes to this directory before executing app [optional]
+  Attributes: \<binary>     - defines the binary filename
+              \<directory>  - watchdog changes to this directory before executing app [optional]
+              \<showWindow> - is optional, default is maximized
 
 Optional nodes:              
 
