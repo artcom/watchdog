@@ -78,6 +78,9 @@ class Application {
         std::string      _myWorkingDirectory;
         std::vector<std::string> _myArguments;
         std::string      _myWindowTitle;
+#ifdef WIN32
+        std::string      _myShowWindowMode;
+#endif
         long             _myAppStartTimeInSeconds;
 
         asl::ThreadLock  _myLock;

@@ -13,9 +13,12 @@
 #include "system_functions.h"
 #include <asl/base/Time.h>
 
+#include <asl/base/Logger.h>
+
 #ifdef WIN32
 #include <asl/base/file_functions.h>
 #   include <windows.h>
+
 #elif defined(LINUX) || defined(OSX)
 #   include <sys/wait.h>
 #   include <errno.h>
@@ -177,13 +180,23 @@ ProcessResult waitForApp( const ProcessInfo & theProcessInfo, int theTimeout, Lo
 bool launchApp( const std::string & theFileName,
                 const std::vector<std::string> & theArguments,
                 const std::string & theWorkingDirectory,
+#ifdef WIN32
+                const std::string & theShowWindowMode,
+#endif
                 ProcessInfo & theProcessInfo)
 {
 #ifdef WIN32
+
+    short showWindowMode = SW_SHOWDEFAULT;
+
+    if (theShowWindowMode == MINIMIZED) {
+        showWindowMode = SW_MINIMIZE;
+    }
+    
     STARTUPINFO StartupInfo = {
         sizeof(STARTUPINFO),
         NULL, NULL, NULL, 0, 0, 0, 0, 0, 0,
-        0, STARTF_USESHOWWINDOW, SW_SHOWDEFAULT,
+        0, STARTF_USESHOWWINDOW, showWindowMode,
         0, NULL, NULL, NULL, NULL
     };
 
