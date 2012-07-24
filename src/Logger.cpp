@@ -58,6 +58,7 @@ Logger::logToFile(const string& theMessage) {
     if (_myFile) {
         static const char * myFormatString("%Y-%M-%D %h:%m:%s");
         asl::Time now;
+        now.toLocalTime();
         (*_myFile) << asl::formatTime(myFormatString)
                    << now
                    << "\n threadid: " << std::hex << (size_t)pthread_self() << std::dec << "\n"

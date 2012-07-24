@@ -309,6 +309,7 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                     myDotPos = _myLogFilename.size();
                 }
                 asl::Time now;
+                now.toLocalTime();
                 static const char * myFormatString("%Y-%M-%D-%h-%m");
                 std::ostringstream myTimeString;
                 myTimeString << asl::formatTime(myFormatString) << now;
