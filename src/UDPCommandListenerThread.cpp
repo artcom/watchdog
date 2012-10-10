@@ -143,7 +143,7 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
 
     }
     if (theConfigNode->childNode("IpWhitelist")) {
-        const dom::NodePtr & myIpWhitelistNode = theConfigNode->childNode("IpWhitlelist");
+        const dom::NodePtr & myIpWhitelistNode = theConfigNode->childNode("IpWhitelist");
         for (unsigned i = 0; i < myIpWhitelistNode->childNodesLength(); ++i) {
             const dom::NodePtr & myIpWhitelistEntryNode = myIpWhitelistNode->childNode(i);
             if (myIpWhitelistEntryNode->nodeType() == dom::Node::ELEMENT_NODE) {
