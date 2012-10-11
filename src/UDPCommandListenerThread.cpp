@@ -142,13 +142,13 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
         }
 
     }
-    if (theConfigNode->childNode("IpWhitlelist")) {
-        const dom::NodePtr & myIpWhitelistNode = theConfigNode->childNode("IpWhitlelist");
+    if (theConfigNode->childNode("IpWhitelist")) {
+        const dom::NodePtr & myIpWhitelistNode = theConfigNode->childNode("IpWhitelist");
         for (unsigned i = 0; i < myIpWhitelistNode->childNodesLength(); ++i) {
             const dom::NodePtr & myIpWhitelistEntryNode = myIpWhitelistNode->childNode(i);
             if (myIpWhitelistEntryNode->nodeType() == dom::Node::ELEMENT_NODE) {
                 std::string myAllowedIp = myIpWhitelistEntryNode->firstChild()->nodeValue();
-                AC_PRINT << "add ip '" << myAllowedIp << "' to udpcontrol whitelist";
+                AC_INFO << "add ip '" << myAllowedIp << "' to udpcontrol whitelist";
                 _myAllowedIps.push_back(getHostAddress(myAllowedIp.c_str()));
             }
         }
