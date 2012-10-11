@@ -136,9 +136,11 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
         const dom::NodePtr & myStatusReportNode = theConfigNode->childNode("StatusReport");
 
         _myStatusReportCommand = myStatusReportNode->getAttributeString("command");
+        AC_DEBUG <<"_myStatusReportCommand: " << _myStatusReportCommand;
         const dom::NodePtr & myAttribute = myStatusReportNode->getAttribute("loadingtime");
         if (myAttribute) {
             _myStatusLoadingDelay  = asl::as<unsigned int>( myAttribute->nodeValue());
+            AC_DEBUG <<"_myStatusLoadingDelay: " << _myStatusLoadingDelay;
         }
 
     }
@@ -148,7 +150,7 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
             const dom::NodePtr & myIpWhitelistEntryNode = myIpWhitelistNode->childNode(i);
             if (myIpWhitelistEntryNode->nodeType() == dom::Node::ELEMENT_NODE) {
                 std::string myAllowedIp = myIpWhitelistEntryNode->firstChild()->nodeValue();
-                AC_INFO << "add ip '" << myAllowedIp << "' to udpcontrol whitelist";
+                AC_DEBUG << "add ip '" << myAllowedIp << "' to udpcontrol whitelist";
                 _myAllowedIps.push_back(getHostAddress(myAllowedIp.c_str()));
             }
         }
@@ -238,7 +240,9 @@ UDPCommandListenerThread::initiateReboot() {
 
 bool
 UDPCommandListenerThread::allowedIp(asl::Unsigned32 theHostAddress) {
-    if (_myAllowedIps.size() == 0 || std::find(_myAllowedIps.begin(), _myAllowedIps.end(), theHostAddress) != _myAllowedIps.end()) {
+    if (_myAllowedIps.size() == 0 ||
+        std::find(_myAllowedIps.begin(), _myAllowedIps.end(), theHostAddress) != _myAllowedIps.end())
+    {
         return true;
     } else {
         return false;
@@ -258,8 +262,7 @@ UDPCommandListenerThread::sendReturnMessage(asl::Unsigned32 theClientHost, const
                 myUDPClient = new UDPSocket(INADDR_ANY, clientPort);
                 break;
             }
-            catch (SocketException & )
-            {
+            catch (SocketException & ) {
                 myUDPClient = 0;
             }
         }
@@ -268,9 +271,9 @@ UDPCommandListenerThread::sendReturnMessage(asl::Unsigned32 theClientHost, const
             cerr << "send message to client: " << theMessage << endl;                
         }
     } catch (SocketException & se) {
-        cerr << "### UDPHaltListener::sendReturnMessage " << se.what() << endl;
         ostringstream myOss;
-        myOss <<  "### UDPHaltListener: " << se.what();
+        myOss << "### UDPCommandListenerThread::sendReturnMessage " << se.what();
+        cerr << myOss.str() << endl;
         _myLogger.logToFile( myOss.str() );
     }
 }
@@ -313,6 +316,7 @@ UDPCommandListenerThread::run() {
 
                     std::string myMessage;
                     if (isCommand(myCommand, std::string("ping"))) {
+                        _myLogger.logToFile( string("Ping from Network") );
                         myMessage = "pong";
                     } else if (isCommand(myCommand, _mySystemHaltCommand)) {
                         cerr << "Client received halt packet" << endl;
@@ -328,11 +332,13 @@ UDPCommandListenerThread::run() {
                         initiateReboot();
                     } else if (isCommand(myCommand, _myRestartAppCommand)) {
                         cerr << "Client received restart application packet" << endl;
+                        _myLogger.logToFile( string("Restart from Network" ));
                         _myApplication.restart();
                         myMessage = _myRestartAppCommand;
                     } else if (isCommand(myCommand, _mySwitchAppCommand) && myArguments.size() == 1) {
                         cerr << "Client received switch application (id '" << myArguments[0] 
                                 << "') packet " << endl;
+                        _myLogger.logToFile( string("Switch application from Network" ));
                         std::string myId = myArguments[0];
                         _myApplication.switchApplication(myId);
                         myMessage = _mySwitchAppCommand;
@@ -356,40 +362,44 @@ UDPCommandListenerThread::run() {
                         myMessage = _myStartAppCommand;
                     } else if (isCommand(myCommand, _myStatusReportCommand)) {
                         cerr << "Client received status report request" << endl;
+                        _myLogger.logToFile( string("StatusReport request from Network" ));
     
                         ProcessResult myProcessResult = _myApplication.getProcessResult();
-    
                         if ( myProcessResult == PR_FAILED ) {
                             myMessage = "error application launch failed";
                         } else if ( myProcessResult == PR_RUNNING ) {
-                            myMessage = (static_cast<unsigned>(_myApplication.getRuntime()) > _myStatusLoadingDelay)?"ok":"loading";
+                            myMessage = (static_cast<unsigned>(_myApplication.getRuntime()) > _myStatusLoadingDelay)
+                                        ? "ok" : "loading";
                         } else if ( myProcessResult == PR_TERMINATED ) {
                             myMessage = "error application terminated";
                         }
                     } else if (controlProjector(myCommand) == true) {
                         // pass
                     } else {
-                        cerr << "### UDPHaltListener: Unexpected packet '" << myCommand << "'. Ignoring" << endl;
                         ostringstream myOss;
-                        myOss << "### UDPHaltListener: Unexpected packet '" << myCommand
+                        myOss << "### UDPCommandListener: Unexpected packet '" << myCommand
                             << "'. Ignoring";
+                        cerr << myOss.str() << endl;
                         _myLogger.logToFile( myOss.str() );
                     }
                     sendReturnMessage(clientHost, myMessage);
                 } else {
-                    AC_PRINT << "client host not allowed for ud pcontrol: " << asl::as_dotted_address(clientHost);
+                    ostringstream myOss;
+                    myOss << "client host not allowed for udpcontrol: " << asl::as_dotted_address(clientHost);
+                    cerr << myOss.str() << std::endl;
+                    _myLogger.logToFile( myOss.str() );
                 }
             } catch (SocketException & se) {
-                cerr << "### UDPHaltListener: " << se.what() << endl;
                 ostringstream myOss;
-                myOss <<  "### UDPHaltListener: " << se.what();
+                myOss <<  "### UDPCommandListener: " << se.what();
+                cerr << myOss.str() << endl;
                 _myLogger.logToFile( myOss.str() );
             }
         }
     } catch (SocketException & se) {
-        cerr << "### UDPHaltListener:loop " << se.what() << endl;
         ostringstream myOss;
-        myOss <<  "### UDPHaltListener:loop " << se.what();
+        myOss <<  "### UDPCommandListener:loop " << se.what();
+        cerr << myOss.str() << endl;
         _myLogger.logToFile( myOss.str() );
     }
     cerr << "stopped udp command listener thread.\n";
