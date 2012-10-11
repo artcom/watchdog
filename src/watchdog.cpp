@@ -120,7 +120,7 @@ WatchDog::arm() {
 
 void
 WatchDog::continuousStatusReport( std::string theStateMsg) {
-    if (_myContinuousStateChangeIP != "" && _myContinuousStateChangePort!=-1) {
+    if (_myContinuousStateChangeIP != "" && _myContinuousStateChangePort != -1) {
         try {
             AC_DEBUG << "send State: " << theStateMsg;
             UDPSocket * myUDPClient = 0;
@@ -132,8 +132,7 @@ WatchDog::continuousStatusReport( std::string theStateMsg) {
                     myUDPClient = new UDPSocket(INADDR_ANY, clientPort);
                     break;
                 }
-                catch (SocketException & )
-                {
+                catch (SocketException & ) {
                     myUDPClient = 0;
                 }
             }
@@ -142,8 +141,7 @@ WatchDog::continuousStatusReport( std::string theStateMsg) {
                 delete myUDPClient;
             }
         }
-        catch (Exception & )
-        {
+        catch (Exception & ) {
             _myLogger.logToFile(std::string("Sorry, cannot establish socket connection to ip: '") + _myContinuousStateChangeIP + "'");            
         }
     }
@@ -377,13 +375,13 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                     const dom::NodePtr & myContinuousStatusChangeNode = myUdpControlNode->childNode("ContinuousStatusChangeReport");
                     const dom::NodePtr & myIPAttribute = myContinuousStatusChangeNode->getAttribute("ip");
                     if (myIPAttribute) {
-                        _myContinuousStateChangeIP  = myIPAttribute->nodeValue();
+                        _myContinuousStateChangeIP = myIPAttribute->nodeValue();
                     }
                     const dom::NodePtr & myPortAttribute = myContinuousStatusChangeNode->getAttribute("port");
                     if (myPortAttribute) {
-                        _myContinuousStateChangePort  = as<int>(myPortAttribute->nodeValue());
+                        _myContinuousStateChangePort = as<int>(myPortAttribute->nodeValue());
                     }
-                    if (_myContinuousStateChangeIP != "" && _myContinuousStateChangePort!=-1) {
+                    if (_myContinuousStateChangeIP != "" && _myContinuousStateChangePort != -1) {
                         AC_INFO << "Continuous state change will will be send to IP: '" << _myContinuousStateChangeIP << "' port :" << _myContinuousStateChangePort;
                     }
                 }
