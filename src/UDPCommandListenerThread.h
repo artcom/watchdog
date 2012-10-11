@@ -34,11 +34,6 @@ class UDPCommandListenerThread : public asl::PosixThread {
                                  std::string & theShutdownCommand);
         virtual ~UDPCommandListenerThread();
 
-        /*void setSystemHaltCommand(const std::string & theSystemhaltCommand);
-        void setRestartAppCommand(const std::string & theRestartAppCommand);
-        void setSystemRebootCommand(const std::string & theSystemRebootCommand);
-        void setStopAppCommand(const std::string & theStopAppCommand);
-        void setStartAppCommand(const std::string & theStartAppCommand);*/
     private:
         void run();
         void sendReturnMessage(asl::Unsigned32 theClientHost, const std::string & theMessage);

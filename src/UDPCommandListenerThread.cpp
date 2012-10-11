@@ -166,31 +166,6 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
 UDPCommandListenerThread::~UDPCommandListenerThread() {
 }
 
-/*void
-UDPCommandListenerThread::setSystemHaltCommand(const string & theSystemhaltCommand) {
-    _mySystemHaltCommand = theSystemhaltCommand;
-}
-
-void
-UDPCommandListenerThread::setRestartAppCommand(const string & theRestartAppCommand) {
-    _myRestartAppCommand = theRestartAppCommand;
-}
-
-void
-UDPCommandListenerThread::setStopAppCommand(const string & theStopAppCommand) {
-    _myStopAppCommand = theStopAppCommand;
-}
-
-void
-UDPCommandListenerThread::setStartAppCommand(const string & theStartAppCommand) {
-    _myStartAppCommand = theStartAppCommand;
-}
-
-void
-UDPCommandListenerThread::setSystemRebootCommand(const string & theSystemRebootCommand) {
-    _mySystemRebootCommand = theSystemRebootCommand;
-}*/
-
 bool
 UDPCommandListenerThread::controlProjector(const std::string & theCommand)
 {
