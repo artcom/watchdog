@@ -36,7 +36,7 @@ class UDPCommandListenerThread : public asl::PosixThread {
 
     private:
         void run();
-        void sendReturnMessage(asl::Unsigned32 theClientHost, const std::string & theMessage);
+        void sendReturnMessage(asl::Unsigned32 theClientHost, asl::Unsigned16 theClientPort, const std::string & theMessage);
         
         bool allowedIp(asl::Unsigned32 theHostAddress);
         bool controlProjector(const std::string & theCommand);
@@ -46,7 +46,7 @@ class UDPCommandListenerThread : public asl::PosixThread {
 
         std::vector<Projector*> _myProjectors;
         int                     _myUDPPort;
-        int                     _myReturnMessagePort;
+        bool                     _myReturnMessageFlag;
         Application &           _myApplication;
         Logger &                _myLogger;
         bool                    _myPowerDownProjectorsOnHalt;

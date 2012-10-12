@@ -49,7 +49,7 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
                                                    std::string & theShutdownCommand)
 :   _myProjectors(theProjectors),
     _myUDPPort(2342),
-    _myReturnMessagePort(-1),
+    _myReturnMessageFlag(false),
     _myApplication(theApplication),
     _myLogger(theLogger),
     _myPowerDownProjectorsOnHalt(false),
@@ -70,9 +70,9 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
         _myUDPPort = asl::as<int>(theConfigNode->getAttribute("port")->nodeValue());
         AC_DEBUG << "_myPort: " << _myUDPPort;
     }
-    if (theConfigNode->getAttribute("returnport")) {
-        _myReturnMessagePort = asl::as<int>(theConfigNode->getAttribute("returnport")->nodeValue());
-        AC_DEBUG << "return message to port: " << _myReturnMessagePort;
+    if (theConfigNode->getAttribute("returnmessage")) {
+        _myReturnMessageFlag = asl::as<bool>(theConfigNode->getAttribute("returnmessage")->nodeValue());
+        AC_DEBUG << "return message: " << _myReturnMessageFlag;
     }
 
     // check for system halt command configuration
@@ -225,16 +225,16 @@ UDPCommandListenerThread::allowedIp(asl::Unsigned32 theHostAddress) {
 }
 
 void
-UDPCommandListenerThread::sendReturnMessage(asl::Unsigned32 theClientHost, const std::string & theMessage) {
-    if (theMessage.empty() || _myReturnMessagePort == -1) {
+UDPCommandListenerThread::sendReturnMessage(asl::Unsigned32 theClientHost, asl::Unsigned16 theClientPort, const std::string & theMessage) {
+    if (theMessage.empty() || !_myReturnMessageFlag) {
         return;
     }
+    UDPSocket * myUDPClient = 0;
     try {
-        UDPSocket * myUDPClient = 0;
-        for (unsigned int clientPort = _myUDPPort+1; clientPort <= MAX_PORT; clientPort++)
+        for (unsigned int localPort = _myUDPPort+1; localPort <= MAX_PORT; localPort++)
         {
             try {
-                myUDPClient = new UDPSocket(INADDR_ANY, clientPort);
+                myUDPClient = new UDPSocket(INADDR_ANY, localPort);
                 break;
             }
             catch (SocketException & ) {
@@ -242,10 +242,14 @@ UDPCommandListenerThread::sendReturnMessage(asl::Unsigned32 theClientHost, const
             }
         }
         if (myUDPClient) {
-            myUDPClient->sendTo(theClientHost, _myReturnMessagePort, theMessage.c_str(), theMessage.size());            
-            cerr << "send message to client: " << theMessage << endl;                
+            myUDPClient->sendTo(theClientHost, theClientPort, theMessage.c_str(), theMessage.size());            
+            delete myUDPClient;
+            cerr << "send message to client: " << theMessage << endl;
         }
     } catch (SocketException & se) {
+        if (myUDPClient) {
+            delete myUDPClient;
+        }
         ostringstream myOss;
         myOss << "### UDPCommandListenerThread::sendReturnMessage " << se.what();
         cerr << myOss.str() << endl;
@@ -257,9 +261,7 @@ void
 UDPCommandListenerThread::run() {
     cout << "Halt listener activated." << endl;
     cout << "* UDP Listener on port: " << _myUDPPort << endl;
-    if (_myReturnMessagePort != -1) {
-        cout << "* UDP Listener return messages on port: " << _myReturnMessagePort << endl;
-    }
+    cout << "* UDP Listener return messages: " << _myReturnMessageFlag << endl;
     cout << "* Commands:" << endl;
     cout << "      System Halt  : " << _mySystemHaltCommand << endl;
     cout << "      System Reboot: " << _mySystemRebootCommand << endl;
@@ -297,13 +299,13 @@ UDPCommandListenerThread::run() {
                         cerr << "Client received halt packet" << endl;
                         _myLogger.logToFile( string("Shutdown from Network") );
                         _myLogger.closeLogFile();
-                        sendReturnMessage(clientHost, _mySystemHaltCommand);
+                        sendReturnMessage(clientHost, clientPort, _mySystemHaltCommand);
                         initiateShutdown();
                     } else if (isCommand(myCommand, _mySystemRebootCommand)) {
                         cerr << "Client received reboot packet" << endl;
                         _myLogger.logToFile( string("Reboot from Network" ));
                         _myLogger.closeLogFile();
-                        sendReturnMessage(clientHost, _mySystemRebootCommand);
+                        sendReturnMessage(clientHost, clientPort, _mySystemRebootCommand);
                         initiateReboot();
                     } else if (isCommand(myCommand, _myRestartAppCommand)) {
                         cerr << "Client received restart application packet" << endl;
@@ -357,7 +359,7 @@ UDPCommandListenerThread::run() {
                         cerr << myOss.str() << endl;
                         _myLogger.logToFile( myOss.str() );
                     }
-                    sendReturnMessage(clientHost, myMessage);
+                    sendReturnMessage(clientHost, clientPort, myMessage);
                 } else {
                     ostringstream myOss;
                     myOss << "client host not allowed for udpcontrol: " << asl::as_dotted_address(clientHost);
