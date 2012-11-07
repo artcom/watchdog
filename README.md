@@ -221,7 +221,7 @@ Fully Optional nodes:
 
 Full featured Udpcontrol configuration node:
 
-    <UdpControl port="2346" returnport="6667">
+    <UdpControl port="2346">
         <IpWhitlelist>
             <Ip>10.1.3.91</Ip>
             <Ip>127.0.0.1</Ip>
@@ -240,10 +240,9 @@ Full featured Udpcontrol configuration node:
     </UdpControl>
 
 - The \<UdpControl> root-node enabled the udp control functionality of the watchdog
+  The watchdog will return all messages to the client using the sender port.
   Attributes: 
     \<port>    - port the watchdog will listen to
-    optional: 
-        \<returnport>    - port the watchdog will answer to
 
 Optional:  
 - \<IpWhitlelist> defines a list of ip-adresses, for which the watchdog allows udp control
