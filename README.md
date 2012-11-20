@@ -156,36 +156,38 @@ Full featured application configuration node:
         <CheckTimedMemoryThreshold>150000</CheckTimedMemoryThreshold>
     </Application>
     
-- The \<Application> root-node defines the app to execute and watch
-  Attributes: \<binary>     - defines the binary filename
-              \<directory>  - watchdog changes to this directory before executing app [optional]
-              \<showWindow> - is optional, default is maximized
+#### The \<Application> root-node defines the app to execute and watch
 
-Optional nodes:              
+- Attributes are as follows:
+  - 'binary'     - defines the binary filename
+  - 'directory'  - watchdog changes to this directory before executing app [optional]
+  - 'showWindow' - is optional, default is maximized
 
-- \<Arguments> defines a list of application arguments
-  and has children of \<Argument>-nodes with childnode definition of the environment variable
-  with the use of CDATA-definition it is possible to handle specials character easier (i.e. '\').
+- Optional nodes:              
+
+  - \<Arguments> defines a list of application arguments
+    and has children of \<Argument>-nodes with childnode definition of the environment variable
+    with the use of CDATA-definition it is possible to handle specials character easier (i.e. '\').
+    
+  - \<EnvironmentVariables> defines a list of environment variables, that will be set before app executing
+    and has children of \<EnvironmentVariable>-nodes with key-value definition of the environment variable
+    with the use of CDATA-definition it is possible to handle specials character easier (i.e. '\').
   
-- \<EnvironmentVariables> defines a list of environment variables, that will be set before app executing
-  and has children of \<EnvironmentVariable>-nodes with key-value definition of the environment variable
-  with the use of CDATA-definition it is possible to handle specials character easier (i.e. '\').
-
-- The Heartbeat detection will check the content of a given file and expects the seconds since 1970 in a format like this:
-\<heartbeat secondsSince1970="1332154365"/>
-  The childnode \<Heartbeat_File> will define the heartbeat file in its childnode. 
-  The childnode \<Allow_Missing_Heartbeats> will define the allowed mssing heartbeat before the watchdog assumes a app to be dead.
-  The childnode \<Heartbeat_Frequency> will define expected frequency ot the heartbeat in seconds.
-  The childnode \<FirstHeartBeatDelay> will define delay in seconds, before the heartbeat detection begins (i.e. for a longer app starttime).
-
-- \<WaitDuringStartup> will define a startup time before the app starts
-- \<WaitDuringRestart> will define a wait time before the app restarts
-- \<RestartTime> will define a time string, at which the apps restarts
-- \<RestartDay> will define a day on which the \<RestartTime> will be used to restart the app
-- \<Memory_Threshold> will define a threshold of free system memory, the undercut of the threshold will lead to a  app restart
-- \<CheckMemoryTime> will define a threshold of free system memory which will be used with node \<CheckTimedMemoryThreshold> to check memory
-   assumption at a given timestamp.
-- \<CheckTimedMemoryThreshold> will define a timestamp at which memory-assumption threshold from node \<CheckMemoryTime >will be used to check 
+  - The Heartbeat detection will check the content of a given file and expects the seconds since 1970 in a format like this:
+  \<heartbeat secondsSince1970="1332154365"/>
+    The childnode \<Heartbeat_File> will define the heartbeat file in its childnode. 
+    The childnode \<Allow_Missing_Heartbeats> will define the allowed mssing heartbeat before the watchdog assumes a app to be dead.
+    The childnode \<Heartbeat_Frequency> will define expected frequency ot the heartbeat in seconds.
+    The childnode \<FirstHeartBeatDelay> will define delay in seconds, before the heartbeat detection begins (i.e. for a longer app starttime).
+  
+  - \<WaitDuringStartup> will define a startup time before the app starts
+  - \<WaitDuringRestart> will define a wait time before the app restarts
+  - \<RestartTime> will define a time string, at which the apps restarts
+  - \<RestartDay> will define a day on which the \<RestartTime> will be used to restart the app
+  - \<Memory_Threshold> will define a threshold of free system memory, the undercut of the threshold will lead to a  app restart
+  - \<CheckMemoryTime> will define a threshold of free system memory which will be used with node \<CheckTimedMemoryThreshold> to check memory
+     assumption at a given timestamp.
+  - \<CheckTimedMemoryThreshold> will define a timestamp at which memory-assumption threshold from node \<CheckMemoryTime >will be used to check 
 
 
 ### Systemcommand execution 
@@ -239,32 +241,33 @@ Full featured Udpcontrol configuration node:
         <ContinuousStatusChangeReport ip="10.1.1.106" port="6655"/>
     </UdpControl>
 
-- The \<UdpControl> root-node enabled the udp control functionality of the watchdog
-  Attributes: 
-    \<port>    - port the watchdog will listen to
-    \<returnmessage> - flag to toggle if the watchdog will return all messages to the client using the sender port. Default is 'false'
+#### The \<UdpControl> root-node enabled the udp control functionality of the watchdog
 
-Optional:  
-- \<IpWhitlelist> defines a list of ip-adresses, for which the watchdog allows udp control
-  and has children of \<Ip>-nodes that define the whitelist. If defined only senderhost with the 
-  configured ip will be accepted.
+- Attributes: 
+  - 'port'    - port the watchdog will listen to
+  - 'returnmessage' - flag to toggle if the watchdog will return all messages to the client using the sender port. Default is 'false'
 
-- \<SystemHalt> will add the listener to the specified command, if a udp-packet with this content is accepted, the computer
-  will shutdown
-
-- \<SystemReboot> will add the listener to the specified command, if a udp-packet with this content is accepted, the computer will reboot
-
-- \<RestartApplication> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog will restart the application
-
-- \<SwitchApplication> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog will restart the application with the watchdog-file identified by 'id'.
-
-- \<StopApplication> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog will stop the application
-
-- \<StartApplication> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog  will start the application
-
-- \<StatusReport> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog sends back the status of the application [running, loading, terminated]. If the attribute \<loadingtime> in seconds is specified, the status  loading will be send for the given amount of seconds to simulate loading procedure
-
-- \<ContinuousStatusChangeReport> triggers a continuous status change udp command to given ip and port
-
-- The node \<ProjectorControl> holds projector control nodes. The feature will be rewritten, therefore not documented, its usage experimental
+- Optional:  
+  - \<IpWhitlelist> defines a list of ip-adresses, for which the watchdog allows udp control
+    and has children of \<Ip>-nodes that define the whitelist. If defined only senderhost with the 
+    configured ip will be accepted.
+  
+  - \<SystemHalt> will add the listener to the specified command, if a udp-packet with this content is accepted, the computer
+    will shutdown
+  
+  - \<SystemReboot> will add the listener to the specified command, if a udp-packet with this content is accepted, the computer will reboot
+  
+  - \<RestartApplication> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog will restart the application
+  
+  - \<SwitchApplication> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog will restart the application with the watchdog-file identified by 'id'.
+  
+  - \<StopApplication> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog will stop the application
+  
+  - \<StartApplication> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog  will start the application
+  
+  - \<StatusReport> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog sends back the status of the application [running, loading, terminated]. If the attribute \<loadingtime> in seconds is specified, the status  loading will be send for the given amount of seconds to simulate loading procedure
+  
+  - \<ContinuousStatusChangeReport> triggers a continuous status change udp command to given ip and port
+  
+  - The node \<ProjectorControl> holds projector control nodes. The feature will be rewritten, therefore not documented, its usage experimental
 
