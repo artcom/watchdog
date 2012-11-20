@@ -379,7 +379,7 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                     }
                     const dom::NodePtr & myPortAttribute = myContinuousStatusChangeNode->getAttribute("port");
                     if (myPortAttribute) {
-                        _myContinuousStateChangePort = as<int>(myPortAttribute->nodeValue());
+                        _myContinuousStateChangePort = asl::as<int>(myPortAttribute->nodeValue());
                     }
                     if (_myContinuousStateChangeIP != "" && _myContinuousStateChangePort != -1) {
                         AC_INFO << "Continuous state change will will be send to IP: '" << _myContinuousStateChangeIP << "' port :" << _myContinuousStateChangePort;
@@ -393,8 +393,8 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 std::string myRebootTime = (*myConfigNode->childNode("RebootTime"))("#text").nodeValue();
                 std::string myHours = myRebootTime.substr(0, myRebootTime.find_first_of(':'));
                 std::string myMinutes = myRebootTime.substr(myRebootTime.find_first_of(':')+1, myRebootTime.length());
-                _myRebootTimeInSecondsToday = atoi(myHours.c_str()) * 3600;
-                _myRebootTimeInSecondsToday += atoi(myMinutes.c_str()) * 60;
+                _myRebootTimeInSecondsToday = asl::as<int>(myHours) * 3600;
+                _myRebootTimeInSecondsToday += asl::as<int>(myMinutes) * 60;
                 AC_DEBUG <<"_myRebootTimeInSecondsToday : " << _myRebootTimeInSecondsToday;
             }
 
@@ -403,8 +403,8 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 std::string myHaltTime = (*myConfigNode->childNode("HaltTime"))("#text").nodeValue();
                 std::string myHours = myHaltTime.substr(0, myHaltTime.find_first_of(':'));
                 std::string myMinutes = myHaltTime.substr(myHaltTime.find_first_of(':')+1, myHaltTime.length());
-                _myHaltTimeInSecondsToday = atoi(myHours.c_str()) * 3600;
-                _myHaltTimeInSecondsToday += atoi(myMinutes.c_str()) * 60;
+                _myHaltTimeInSecondsToday = asl::as<int>(myHours) * 3600;
+                _myHaltTimeInSecondsToday += asl::as<int>(myMinutes) * 60;
                 AC_DEBUG <<"_myHaltTimeInSecondsToday : " << _myHaltTimeInSecondsToday;
             }
             
