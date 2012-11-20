@@ -228,7 +228,7 @@ Full featured Udpcontrol configuration node:
         </IpWhitlelist>
         <SystemHalt powerDownProjectors="true" command="halt"/>    
         <SystemReboot shutterCloseProjectors="true" command="reboot"/>
-        <RestartApplication command="restart_app"/>
+        <RestartApplication command="restart"/>
         <SwitchApplication command="switch_app"/>
         <StopApplication shutterCloseProjectors="true" command="firealarm_on"/>
         <StartApplication command="firealarm_off"/>
