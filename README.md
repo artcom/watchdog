@@ -9,8 +9,8 @@ It is open-source and available for windows, linux and mac-osx.
 # Build from sources
 ## Checkout
 Checkout watchdog sources
- 
-    git clone git@github.com:artcom/watchdog.git
+   
+    git clone https://github.com/artcom/watchdog.git
 
 ### Build on Windows
 #### Prerequisits
@@ -80,7 +80,7 @@ We have Homebrew [[http://mxcl.github.com/homebrew/]] support. This makes instal
 
     brew update
     cd $(brew --repository)
-    git pull git@github.com:artcom/homebrew.git
+    git pull https://github.com/artcom/homebrew.git
 
 #### Now simply install watchdog:
 
