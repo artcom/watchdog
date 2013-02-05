@@ -33,6 +33,10 @@
 #   include <sys/reboot.h>
 #endif
 
+#ifdef OSX
+#   include <Carbon/Carbon.h>
+#endif
+
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
