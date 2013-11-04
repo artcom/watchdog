@@ -339,8 +339,8 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
             }
 
             // check for application post launch command
-            if (myConfigNode->childNode("PostStartupCommand")) {
-                _myPostApplicationLaunchCommand = (*myConfigNode->childNode("PostStartupCommand")).firstChild()->nodeValue();
+            if (myConfigNode->childNode("PostAppLaunchCommand")) {
+                _myPostApplicationLaunchCommand = (*myConfigNode->childNode("PostAppLaunchCommand")).firstChild()->nodeValue();
                 AC_DEBUG << "_myPostApplicationLaunchCommand: " << _myPostApplicationLaunchCommand;
             }
             

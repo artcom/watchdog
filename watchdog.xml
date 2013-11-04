@@ -65,9 +65,9 @@
     <PreStartupCommand>
 		<![CDATA[dir]]>    
     </PreStartupCommand>
-    <PostStartupCommand>
+    <PostAppLaunchCommand>
     <![CDATA[dir]]>    
-    </PostStartupCommand-->
+    </PostAppLaunchCommand-->
 
     <!--<RebootTime>15:30</RebootTime>-->
     <!--<HaltTime>16:10</HaltTime>-->
