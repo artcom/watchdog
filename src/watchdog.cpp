@@ -75,6 +75,7 @@ WatchDog::WatchDog()
       _myStartupCommand(""),
       _myShutdownCommand(""),
       _myApplicationTerminatedCommand(""),
+      _myPostApplicationLaunchCommand(""),
       _myApplicationPreTerminateCommand(""),
       _myContinuousStateChangeIP(""),
       _myContinuousStateChangePort(-1),
@@ -182,6 +183,12 @@ WatchDog::watch() {
 
             } else {
                 myReturnString = "Application paused.";
+            }
+
+            if (_myPostApplicationLaunchCommand != "") {
+                _myLogger.logToFile(string("application is launched, execute additional command: '") + _myPostApplicationLaunchCommand + "'");
+                int myError = system(_myPostApplicationLaunchCommand.c_str());
+                _myLogger.logToFile(string("application is launched, execute additional command, returned with error: ") + asl::as_string(myError));
             }
 
             continuousStatusReport("runnning");
@@ -330,6 +337,12 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 _myStartupCommand = (*myConfigNode->childNode("PreStartupCommand")).firstChild()->nodeValue();
                 AC_DEBUG << "_myStartupCommand: " << _myStartupCommand;
             }
+
+            // check for application post launch command
+            if (myConfigNode->childNode("PostStartupCommand")) {
+                _myPostApplicationLaunchCommand = (*myConfigNode->childNode("PostStartupCommand")).firstChild()->nodeValue();
+                AC_DEBUG << "_myPostApplicationLaunchCommand: " << _myPostApplicationLaunchCommand;
+            }
             
             // check for additional shutdown command
             if (myConfigNode->childNode("PreShutdownCommand")) {
@@ -345,6 +358,8 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 _myApplicationTerminatedCommand = (*myConfigNode->childNode("AppTerminateCommand")).firstChild()->nodeValue();
                 AC_DEBUG << "_myApplicationTerminatedCommand: " << _myApplicationTerminatedCommand;
             }
+
+            
             // check for application pre terminate command
             if (myConfigNode->childNode("AppPreTerminateCommand")) {
                 _myApplicationPreTerminateCommand = (*myConfigNode->childNode("AppPreTerminateCommand")).firstChild()->nodeValue();

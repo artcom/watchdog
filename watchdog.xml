@@ -64,7 +64,11 @@
     </PreShutdownCommand>
     <PreStartupCommand>
 		<![CDATA[dir]]>    
-    </PreStartupCommand-->
+    </PreStartupCommand>
+    <PostStartupCommand>
+    <![CDATA[dir]]>    
+    </PostStartupCommand-->
+
     <!--<RebootTime>15:30</RebootTime>-->
     <!--<HaltTime>16:10</HaltTime>-->
 
