@@ -76,13 +76,11 @@ We have Homebrew [[http://mxcl.github.com/homebrew/]] support. This makes instal
 
 - Homebrew Installation: [[https://github.com/mxcl/homebrew/wiki/installation]]
 
-#### Now pull the ART+COM homebrew fork:
+#### Add the artcom tap for y60 and related projects ([[https://github.com/artcom/homebrew-y60]]):
 
-    brew update
-    cd $(brew --repository)
-    git pull https://github.com/artcom/homebrew.git
+    brew tap artcom/y60
 
-#### Now simply install watchdog:
+#### Install watchdog:
 
     brew install watchdog
 
@@ -208,6 +206,9 @@ Full featured systemcommand configuration node:
     <PreStartupCommand>
 		<![CDATA[dir]]>    
     </PreStartupCommand>
+    <PostAppLaunchCommand>
+    <![CDATA[dir]]>    
+    </PostAppLaunchCommand>
 
 Fully Optional nodes:            
   
@@ -218,6 +219,7 @@ Fully Optional nodes:
    Attributes: \<ignoreOnUdpRestart> - can be made dependent if the app is restartet via udp or exited internally
 - \<PreShutdownCommand> will define a systemcommand to be executed before the computer is shutdown
 - \<PreStartupCommand> will define a systemcommand to be executed when the watchdog is started
+- \<PostAppLaunchCommand> will define a systemcommand to be executed when the application has launched
 
 ### Udpcontrol interface
 
