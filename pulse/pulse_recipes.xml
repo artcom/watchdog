@@ -135,6 +135,18 @@
             <macro-ref macro="${run_ctest}"/>
             <macro-ref macro="${run_cpack_windows}"/>
         </recipe>
+        <recipe name="GMake Release">
+            <property name="cmake.generator" value="Unix Makefiles"/>
+            <macro-ref macro="${run_cmake}"/>
+            <macro-ref macro="${run_gmake_build}"/>
+        </recipe>
+        <recipe name="NMake Release">
+            <property name="cmake.generator" value="NMake Makefiles"/>
+            <property name="cmake.recipe.args" value="${cmake.recipe.args} -D ACMAKE_PARALLEL_CL=${parallel.jobs}"/>
+            <macro-ref macro="${run_cmake}"/>
+            <macro-ref macro="${run_nmake_build}"/>
+            <macro-ref macro="${run_cpack_windows}"/>
+        </recipe>
     </scope>
 
     <!-- multi configuration CMake generators (MSVC,Xcode) -->
