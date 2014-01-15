@@ -137,6 +137,7 @@
             <property name="cmake.generator" value="Unix Makefiles"/>
             <macro-ref macro="${run_cmake}"/>
             <macro-ref macro="${run_gmake_build}"/>
+            <macro-ref macro="${run_cpack_linux}"/>
         </recipe>
         <recipe name="NMake Release">
             <property name="cmake.generator" value="NMake Makefiles"/>
