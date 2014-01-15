@@ -76,13 +76,11 @@ We have Homebrew [[http://mxcl.github.com/homebrew/]] support. This makes instal
 
 - Homebrew Installation: [[https://github.com/mxcl/homebrew/wiki/installation]]
 
-#### Now pull the ART+COM homebrew fork:
+#### Add the artcom tap for y60 and related projects ([[https://github.com/artcom/homebrew-y60]]):
 
-    brew update
-    cd $(brew --repository)
-    git pull https://github.com/artcom/homebrew.git
+    brew tap artcom/y60
 
-#### Now simply install watchdog:
+#### Install watchdog:
 
     brew install watchdog
 

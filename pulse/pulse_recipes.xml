@@ -58,19 +58,17 @@
 
     <macro name="run_cpack_windows">
         <executable exe="${cpack.bin}" args="${cpack.agent.args} ${cpack.extra.args}" working-dir="${build.dir}" name="package">
-            
-            <artifact ignore-stale="true" name="installer" file="${build.dir}/Watchdog-*.*.*-win32.exe"/>
-            <artifact ignore-stale="true" name="binary-zip" file="${build.dir}/Watchdog-*.*.*-win32.zip"/>
+            <artifact ignore-stale="true" name="installer" file="${build.dir}/Watchdog-*.*.*-win32*.exe"/>
+            <artifact ignore-stale="true" name="binary-zip" file="${build.dir}/Watchdog-*.*.*-win32*.zip"/>
         </executable>
     </macro>
 
     <macro name="run_cpack_linux">
         <executable exe="${cpack.bin}" args="${cpack.agent.args} ${cpack.extra.args}" working-dir="${build.dir}" name="package">
-            
-            <artifact ignore-stale="true" name="package-rpm" file="${build.dir}/Watchdog-*.*.*-Linux.rpm"/>
-            <artifact ignore-stale="true" name="package-deb" file="${build.dir}/Watchdog-*.*.*-Linux.deb"/>
-            <artifact ignore-stale="true" name="binary-tbz2" file="${build.dir}/Watchdog-*.*.*-Linux.tar.bz2"/>
-            <artifact ignore-stale="true" name="binary-tgz" file="${build.dir}/Watchdog-*.*.*-Linux.tar.gz"/>
+            <artifact ignore-stale="true" name="package-rpm" file="${build.dir}/Watchdog-*.*.*-Linux*.rpm"/>
+            <artifact ignore-stale="true" name="package-deb" file="${build.dir}/Watchdog-*.*.*-Linux*.deb"/>
+            <artifact ignore-stale="true" name="binary-tbz2" file="${build.dir}/Watchdog-*.*.*-Linux*.tar.bz2"/>
+            <artifact ignore-stale="true" name="binary-tgz" file="${build.dir}/Watchdog-*.*.*-Linux*.tar.gz"/>
         </executable>
     </macro>
 
