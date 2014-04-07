@@ -90,7 +90,7 @@ void initiateSystemReboot() {
     // http://developer.apple.com/qa/qa2001/qa1134.html
     // google keywords: "programmatically reboot mac os x"
     // [DS]
-    int myResult = system("sudo /sbin/reboot");
+    int myResult = system("sudo /sbin/shutdown -r now");
     if (myResult == -1) {
         dumpLastError("reboot");
     }
@@ -136,7 +136,7 @@ void initiateSystemShutdown() {
     }
 #elif defined(LINUX) || defined(OSX)
     // See comment in initiateSystemReboot() [DS]
-    int myResult = system("sudo /sbin/halt");
+    int myResult = system("sudo /sbin/shutdown -h now");
     if (myResult == -1) {
         dumpLastError("halt");
     }
