@@ -132,7 +132,7 @@ The feature set in Detail:
 
 Full featured application configuration node:
 
-    <Application binary="calc.exe" directory="" showWindow="maximized|minimized">
+    <Application binary="calc.exe" directory="" logFile="calc.log" showWindow="maximized|minimized">
         <EnvironmentVariables>
             <!--<EnvironmentVariable name="key"><![CDATA[value]]></EnvironmentVariable>-->
         </EnvironmentVariables>
@@ -159,6 +159,7 @@ Full featured application configuration node:
 - Attributes are as follows:
   - 'binary'     - defines the binary filename
   - 'directory'  - watchdog changes to this directory before executing app [optional]
+  - 'logFile'    - watchdog will redirect all stdout and stderr outputs this filename [optional]
   - 'showWindow' - is optional, default is maximized
 
 - Optional nodes:              
