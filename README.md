@@ -159,7 +159,7 @@ Full featured application configuration node:
 - Attributes are as follows:
   - 'binary'     - defines the binary filename
   - 'directory'  - watchdog changes to this directory before executing app [optional]
-  - 'logFile'    - watchdog will redirect all stdout and stderr outputs to this filename [optional]
+  - 'logFile'    - watchdog will redirect all stdout and stderr outputs to this filename [optional, but linux/osx only]
   - 'showWindow' - is optional, default is maximized
 
 - Optional nodes:              
