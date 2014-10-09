@@ -75,6 +75,7 @@ class Application {
 
         std::string      _myApplicationWatchdogDirectory;
         std::string      _myFileName;
+        std::string      _myAppLogFile;
         std::string      _myWorkingDirectory;
         std::vector<std::string> _myArguments;
         std::string      _myWindowTitle;

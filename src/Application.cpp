@@ -69,6 +69,7 @@ Application::Application(Logger & theLogger)
 :
 _myApplicationWatchdogDirectory(""),
 _myFileName(""),
+_myAppLogFile(""),
 _myWorkingDirectory(""),
 _myWindowTitle(""),
 #ifdef WIN32
@@ -132,6 +133,8 @@ bool Application::setup(const dom::NodePtr & theAppNode, const std::string & the
         cerr <<"### ERROR, no application binary to watch." << endl;
         return false;
     }
+    
+
     if (theAppNode->getAttribute("windowtitle")) {
         _myWindowTitle = theAppNode->getAttribute("windowtitle")->nodeValue();
         AC_DEBUG <<"_myWindowTitle: " << _myWindowTitle;
@@ -148,6 +151,15 @@ bool Application::setup(const dom::NodePtr & theAppNode, const std::string & the
         _myWorkingDirectory = asl::expandEnvironment(
             theAppNode->getAttribute("directory")->nodeValue() );
         AC_DEBUG <<"_myWorkingDirectory: " << _myWorkingDirectory;
+    }
+    if (theAppNode->getAttribute("logFile")) {
+#ifdef WIN32
+        AC_WARNING << "logFile attribute is ignored for windows.";
+#else
+        _myAppLogFile = asl::expandEnvironment(
+            theAppNode->getAttribute("logFile")->nodeValue() );
+        AC_DEBUG <<"_myAppLogFile: " << _myAppLogFile;
+#endif
     }
     if (theAppNode->childNode("EnvironmentVariables")) {
         setupEnvironment(theAppNode->childNode("EnvironmentVariables"));
@@ -325,7 +337,7 @@ Application::launch() {
     _myEnvironmentVariables[STARTUP_COUNT_ENV] = asl::as_string(++_myStartupCount);
     setEnvironmentVariables();
 
-    bool myResult = launchApp( _myFileName, _myArguments, _myWorkingDirectory,
+    bool myResult = launchApp( _myFileName, _myArguments, _myWorkingDirectory, _myAppLogFile,
 #ifdef WIN32
                                _myShowWindowMode,
 #endif
@@ -335,6 +347,7 @@ Application::launch() {
 
     if (!myResult) {
         _myLogger.logToFile( getLastError() + " Command : '" + myCommandLine  + "'" + 
+                             (_myAppLogFile != "" ? " redirecting stdout/stderr to : '" + _myAppLogFile + "'" : "") + 
                              (_myWorkingDirectory != "" ? " working directoy: '" + _myWorkingDirectory + "'" : ""));
         cerr << getLastError() << "\n\n" << myCommandLine << endl;
         exit(-1);

@@ -62,6 +62,7 @@ ProcessResult waitForApp( const ProcessInfo & theProcessInfo, int theTimeout, Lo
 bool launchApp( const std::string & theFileName,
                 const std::vector<std::string> & theArguments,
                 const std::string & theWorkingDirectory,
+                const std::string & theAppLogFile,
 #ifdef WIN32
                 const std::string & theShowWindowMode,
 #endif

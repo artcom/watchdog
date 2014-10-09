@@ -74,7 +74,7 @@
 
     <!-- you have to use SwitchApplications XOR Application -->
     <SwitchableApplications directory="folder" initial="application_watchdog_file_name_without_extension"/>
-    <Application binary="calc.exe" directory="D:\dev\git\Misc\obj\bin\Release">
+    <Application binary="calc.exe" directory="D:\dev\git\Misc\obj\bin\Release" logFile="">
         <EnvironmentVariables>
             <!--<EnvironmentVariable name="key"><![CDATA[value]]></EnvironmentVariable>-->
         </EnvironmentVariables>

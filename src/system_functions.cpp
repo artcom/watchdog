@@ -16,14 +16,15 @@
 #include <asl/base/Logger.h>
 
 #ifdef WIN32
-#include <asl/base/file_functions.h>
+#   include <asl/base/file_functions.h>
 #   include <windows.h>
-
 #elif defined(LINUX) || defined(OSX)
 #   include <sys/wait.h>
 #   include <errno.h>
 #   include <unistd.h>
 #   include <string.h>
+#   include <sys/stat.h>
+#   include <fcntl.h>
 #else
 #   error Your platform is missing!
 #endif
@@ -184,6 +185,7 @@ ProcessResult waitForApp( const ProcessInfo & theProcessInfo, int theTimeout, Lo
 bool launchApp( const std::string & theFileName,
                 const std::vector<std::string> & theArguments,
                 const std::string & theWorkingDirectory,
+                const std::string & theAppLogFile,
 #ifdef WIN32
                 const std::string & theShowWindowMode,
 #endif
@@ -241,6 +243,13 @@ bool launchApp( const std::string & theFileName,
         std::cerr << "in directory: '" << theWorkingDirectory << "'";
     }
     myArgv.push_back(NULL);
+    if (theAppLogFile != "") {
+        std::cerr << " redirecting stdout/stderr to '" << theAppLogFile << "'";
+        int fd = open(theAppLogFile.c_str(), O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+        dup2(fd, 1);   // make stdout go to file
+        dup2(fd, 2);   // make stderr go to file
+        close(fd);     // fd no longer needed   
+    }
     std::cerr << std::endl;
     if ( ! theWorkingDirectory.empty() ) {
         if (chdir( theWorkingDirectory.c_str() ) < 0) {
@@ -248,6 +257,7 @@ bool launchApp( const std::string & theFileName,
             std::abort();
         }
     }
+
     execvp( theFileName.c_str(), &myArgv[0] );
     dumpLastError(theFileName);
     std::abort();
