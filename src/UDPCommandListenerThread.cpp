@@ -50,6 +50,7 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
 :   _myProjectors(theProjectors),
     _myUDPPort(2342),
     _myReturnMessageFlag(false),
+    _myReturnMessagePort(-1),
     _myApplication(theApplication),
     _myLogger(theLogger),
     _myPowerDownProjectorsOnHalt(false),
@@ -69,6 +70,10 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
     if (theConfigNode->getAttribute("port")) {
         _myUDPPort = asl::as<int>(theConfigNode->getAttribute("port")->nodeValue());
         AC_DEBUG << "_myPort: " << _myUDPPort;
+    }
+    if (theConfigNode->getAttribute("returnMessagePort")) {
+        _myReturnMessagePort = asl::as<int>(theConfigNode->getAttribute("returnMessagePort")->nodeValue());
+        AC_DEBUG << "_myReturnMessagePort: " << _myReturnMessagePort;
     }
     if (theConfigNode->getAttribute("returnmessage")) {
         _myReturnMessageFlag = asl::as<bool>(theConfigNode->getAttribute("returnmessage")->nodeValue());
@@ -244,7 +249,7 @@ UDPCommandListenerThread::sendReturnMessage(asl::Unsigned32 theClientHost, asl::
         if (myUDPClient) {
             myUDPClient->sendTo(theClientHost, theClientPort, theMessage.c_str(), theMessage.size());            
             delete myUDPClient;
-            cerr << "send message to client: " << theMessage << endl;
+            cerr << "send message to client: " << theMessage << " to host:" << theClientHost << " on port #" << theClientPort << endl;
         }
     } catch (SocketException & se) {
         if (myUDPClient) {
@@ -261,7 +266,7 @@ void
 UDPCommandListenerThread::run() {
     cout << "Halt listener activated." << endl;
     cout << "* UDP Listener on port: " << _myUDPPort << endl;
-    cout << "* UDP Listener return messages: " << _myReturnMessageFlag << endl;
+    cout << "* UDP Listener return messages: " << _myReturnMessageFlag << " to sender port #" << _myReturnMessagePort << endl;
     cout << "* Commands:" << endl;
     cout << "      System Halt  : " << _mySystemHaltCommand << endl;
     cout << "      System Reboot: " << _mySystemRebootCommand << endl;
@@ -281,6 +286,10 @@ UDPCommandListenerThread::run() {
                 unsigned myBytesRead = myUDPServer.receiveFrom(
                         &clientHost, &clientPort,
                         myInputBuffer,sizeof(myInputBuffer)-1);
+                if (_myReturnMessagePort != -1) {
+                    clientPort = _myReturnMessagePort;
+                }
+
                 if(allowedIp(clientHost)) {
                     myInputBuffer[myBytesRead] = 0;
                     std::istringstream myIss(myInputBuffer);

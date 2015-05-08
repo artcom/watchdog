@@ -46,7 +46,9 @@ class UDPCommandListenerThread : public asl::PosixThread {
 
         std::vector<Projector*> _myProjectors;
         int                     _myUDPPort;
-        bool                     _myReturnMessageFlag;
+        bool                    _myReturnMessageFlag;
+        int                     _myReturnMessagePort;
+
         Application &           _myApplication;
         Logger &                _myLogger;
         bool                    _myPowerDownProjectorsOnHalt;
@@ -62,7 +64,7 @@ class UDPCommandListenerThread : public asl::PosixThread {
         // status report
         std::string             _myStatusReportCommand;
         unsigned int            _myStatusLoadingDelay;
-        
+
         std::string             _myShutdownCommand;
         std::vector<asl::Unsigned32> _myAllowedIps;
 };
