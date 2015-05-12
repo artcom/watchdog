@@ -336,8 +336,7 @@ void
 Application::launch() {
     _myEnvironmentVariables[STARTUP_COUNT_ENV] = asl::as_string(++_myStartupCount);
     setEnvironmentVariables();
-
-    bool myResult = launchApp( _myFileName, _myArguments, _myWorkingDirectory, _myAppLogFile,
+    bool myResult = launchApp( _myFileName, _myArguments, asl::expandEnvironment(_myWorkingDirectory), _myAppLogFile,
 #ifdef WIN32
                                _myShowWindowMode,
 #endif
@@ -348,7 +347,7 @@ Application::launch() {
     if (!myResult) {
         _myLogger.logToFile( getLastError() + " Command : '" + myCommandLine  + "'" + 
                              (_myAppLogFile != "" ? " redirecting stdout/stderr to : '" + _myAppLogFile + "'" : "") + 
-                             (_myWorkingDirectory != "" ? " working directoy: '" + _myWorkingDirectory + "'" : ""));
+                             (_myWorkingDirectory != "" ? " working directoy: '" + asl::expandEnvironment(_myWorkingDirectory) + "'" : ""));
         cerr << getLastError() << "\n\n" << myCommandLine << endl;
         exit(-1);
     }
