@@ -334,19 +334,19 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
             
             // check for additional startup command
             if (myConfigNode->childNode("PreStartupCommand")) {
-                _myStartupCommand = (*myConfigNode->childNode("PreStartupCommand")).firstChild()->nodeValue();
+                _myStartupCommand = asl::expandEnvironment((*myConfigNode->childNode("PreStartupCommand")).firstChild()->nodeValue());
                 AC_DEBUG << "_myStartupCommand: " << _myStartupCommand;
             }
 
             // check for application post launch command
             if (myConfigNode->childNode("PostAppLaunchCommand")) {
-                _myPostApplicationLaunchCommand = (*myConfigNode->childNode("PostAppLaunchCommand")).firstChild()->nodeValue();
+                _myPostApplicationLaunchCommand = asl::expandEnvironment((*myConfigNode->childNode("PostAppLaunchCommand")).firstChild()->nodeValue());
                 AC_DEBUG << "_myPostApplicationLaunchCommand: " << _myPostApplicationLaunchCommand;
             }
             
             // check for additional shutdown command
             if (myConfigNode->childNode("PreShutdownCommand")) {
-                _myShutdownCommand = (*myConfigNode->childNode("PreShutdownCommand")).firstChild()->nodeValue();
+                _myShutdownCommand = asl::expandEnvironment((*myConfigNode->childNode("PreShutdownCommand")).firstChild()->nodeValue());
                 AC_DEBUG << "_myShutdownCommand: " << _myShutdownCommand;
             }
 
@@ -355,14 +355,14 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 if (myConfigNode->childNode("AppTerminateCommand")->getAttribute("ignoreOnUdpRestart")) {
                     _myIgnoreTerminateCmdOnUdpCmd = asl::as<bool>(myConfigNode->childNode("AppTerminateCommand")->getAttribute("ignoreOnUdpRestart")->nodeValue());
                 }
-                _myApplicationTerminatedCommand = (*myConfigNode->childNode("AppTerminateCommand")).firstChild()->nodeValue();
+                _myApplicationTerminatedCommand = asl::expandEnvironment((*myConfigNode->childNode("AppTerminateCommand")).firstChild()->nodeValue());
                 AC_DEBUG << "_myApplicationTerminatedCommand: " << _myApplicationTerminatedCommand;
             }
 
             
             // check for application pre terminate command
             if (myConfigNode->childNode("AppPreTerminateCommand")) {
-                _myApplicationPreTerminateCommand = (*myConfigNode->childNode("AppPreTerminateCommand")).firstChild()->nodeValue();
+                _myApplicationPreTerminateCommand = asl::expandEnvironment((*myConfigNode->childNode("AppPreTerminateCommand")).firstChild()->nodeValue());
                 AC_DEBUG << "_myApplicationPreTerminateCommand: " << _myApplicationPreTerminateCommand;
             }
 
