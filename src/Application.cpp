@@ -353,7 +353,7 @@ Application::launch() {
     }
     _myStartTimeInSeconds = getElapsedSecondsToday();
 
-    _myLogger.logToFile("Started successfully: " + myCommandLine);
+    _myLogger.logToFile("Started successfully: " + myCommandLine + (_myWorkingDirectory != "" ? " in working directoy: '" + asl::expandEnvironment(_myWorkingDirectory) + "'" : "") );
     _myProcessResult = PR_RUNNING;
 
     _myItIsTimeToRestart   = false;
