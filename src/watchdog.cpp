@@ -75,6 +75,7 @@ WatchDog::WatchDog()
       _myStartupCommand(""),
       _myShutdownCommand(""),
       _myApplicationTerminatedCommand(""),
+      _myPreApplicationLaunchCommand(""),
       _myPostApplicationLaunchCommand(""),
       _myApplicationPreTerminateCommand(""),
       _myContinuousStateChangeIP(""),
@@ -178,6 +179,11 @@ WatchDog::watch() {
             if (!_myAppToWatch.paused()) {
                 myReturnString = "Internal quit.";
                 _myLogger.logToFile( "Restarting application." );
+                if (_myPreApplicationLaunchCommand != "") {
+                    _myLogger.logToFile(string("application is ready to launch, execute additional command: '") + _myPreApplicationLaunchCommand + "'");
+                    int myError = system(_myPreApplicationLaunchCommand.c_str());
+                    _myLogger.logToFile(string("application is ready to launch, execute additional command, returned with error: ") + asl::as_string(myError));
+                }
                 continuousStatusReport("loading");
                 _myAppToWatch.launch();
 
@@ -336,6 +342,12 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
             if (myConfigNode->childNode("PreStartupCommand")) {
                 _myStartupCommand = asl::expandEnvironment((*myConfigNode->childNode("PreStartupCommand")).firstChild()->nodeValue());
                 AC_DEBUG << "_myStartupCommand: " << _myStartupCommand;
+            }
+
+            // check for application pre launch command
+            if (myConfigNode->childNode("PreAppLaunchCommand")) {
+                _myPreApplicationLaunchCommand = asl::expandEnvironment((*myConfigNode->childNode("PreAppLaunchCommand")).firstChild()->nodeValue());
+                AC_DEBUG << "_myPreApplicationLaunchCommand: " << _myPreApplicationLaunchCommand;
             }
 
             // check for application post launch command

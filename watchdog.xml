@@ -65,6 +65,9 @@
     <PreStartupCommand>
 		<![CDATA[dir]]>    
     </PreStartupCommand>
+    <PreAppLaunchCommand>
+    <![CDATA[dir]]>    
+    </PreAppLaunchCommand>
     <PostAppLaunchCommand>
     <![CDATA[dir]]>    
     </PostAppLaunchCommand-->

@@ -207,6 +207,9 @@ Full featured systemcommand configuration node:
     <PreStartupCommand>
 		<![CDATA[dir]]>    
     </PreStartupCommand>
+    <PreAppLaunchCommand>
+    <![CDATA[dir]]>    
+    </PreAppLaunchCommand>
     <PostAppLaunchCommand>
     <![CDATA[dir]]>    
     </PostAppLaunchCommand>
@@ -220,6 +223,7 @@ Fully Optional nodes:
    Attributes: \<ignoreOnUdpRestart> - can be made dependent if the app is restartet via udp or exited internally
 - \<PreShutdownCommand> will define a systemcommand to be executed before the computer is shutdown
 - \<PreStartupCommand> will define a systemcommand to be executed when the watchdog is started
+- \<PreAppLaunchCommand> will define a systemcommand to be executed before the application is launched
 - \<PostAppLaunchCommand> will define a systemcommand to be executed when the application has launched
 
 ### Udpcontrol interface
