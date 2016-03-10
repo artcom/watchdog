@@ -30,8 +30,6 @@ namespace dom {
     class Document;
 };
 
-class Projector;
-
 class WatchDog {
 public:
     WatchDog();
@@ -56,9 +54,6 @@ private:
     Application         _myAppToWatch;
 
     UDPCommandListenerThread * _myUDPCommandListenerThread;
-
-    std::vector<Projector *> _myProjectors;
-    bool                _myPowerUpProjectorsOnStartup;
 
     void                checkForReboot();
     void                checkForHalt();

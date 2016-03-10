@@ -120,7 +120,7 @@ where 'switch' is the command specified in the SwitchApplication-node. The appli
 The full feature set is divided in three categories:  
 1. The application startup configuration, timed restart commands and runtime checks, like memory consumption and heartbeat detection.  
 2. Systemcommand pre and post application execution and timed computer restart or shutdown   
-3. Udpcontrol interface for status and controlling of computer, application and a bunch of projectors (will be updated to a plugin infrastructure)  
+3. Udpcontrol interface for status and controlling of computer and application
 
 All optional nodes are obsolete, the functionality will be disabled.
 The notation ${env_var} will evaluate the environment variable 'env_var' into the string, and is used in heartbeat_file definition, 
@@ -235,15 +235,12 @@ Full featured Udpcontrol configuration node:
             <Ip>10.1.3.91</Ip>
             <Ip>127.0.0.1</Ip>
         </IpWhitlelist>
-        <SystemHalt powerDownProjectors="true" command="halt"/>    
-        <SystemReboot shutterCloseProjectors="true" command="reboot"/>
+        <SystemHalt command="halt"/>    
+        <SystemReboot command="reboot"/>
         <RestartApplication command="restart"/>
         <SwitchApplication command="switch_app"/>
-        <StopApplication shutterCloseProjectors="true" command="firealarm_on"/>
+        <StopApplication command="firealarm_on"/>
         <StartApplication command="firealarm_off"/>
-        <ProjectorControl powerUpOnStartup="true">
-            <Projector type="nec" port="0" baud="38400" input="RGB_1"/>
-        </ProjectorControl>
         <StatusReport command="status" loadingtime="2"/>
         <ContinuousStatusChangeReport ip="10.1.1.106" port="6655"/>
     </UdpControl>
@@ -276,6 +273,3 @@ Full featured Udpcontrol configuration node:
   - \<StatusReport> will add the listener to the specified command, if a udp-packet with this content is accepted, the watchdog sends back the status of the application [running, loading, terminated]. If the attribute \<loadingtime> in seconds is specified, the status  loading will be send for the given amount of seconds to simulate loading procedure
   
   - \<ContinuousStatusChangeReport> triggers a continuous status change udp command to given ip and port
-  
-  - The node \<ProjectorControl> holds projector control nodes. The feature will be rewritten, therefore not documented, its usage experimental
-

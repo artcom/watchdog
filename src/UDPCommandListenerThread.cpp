@@ -30,7 +30,6 @@
 #endif
 
 #include "Application.h"
-#include "Projector.h"
 #include "system_functions.h"
 
 const asl::Unsigned16 MAX_PORT = 65535;
@@ -42,20 +41,15 @@ inline bool isCommand(const std::string & theReceivedCommand, const std::string 
     return (!theExpectedCommand.empty() && theReceivedCommand == theExpectedCommand);
 }
 
-UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theProjectors,
-                                                   Application & theApplication,
+UDPCommandListenerThread::UDPCommandListenerThread(Application & theApplication,
                                                    const dom::NodePtr & theConfigNode,
                                                    Logger & theLogger,
                                                    std::string & theShutdownCommand)
-:   _myProjectors(theProjectors),
-    _myUDPPort(2342),
+:   _myUDPPort(2342),
     _myReturnMessageFlag(false),
     _myReturnMessagePort(-1),
     _myApplication(theApplication),
     _myLogger(theLogger),
-    _myPowerDownProjectorsOnHalt(false),
-    _myShutterCloseProjectorsOnStop(false),
-    _myShutterCloseProjectorsOnReboot(false),
     _mySystemHaltCommand(""),
     _myRestartAppCommand(""),
     _mySwitchAppCommand(""),
@@ -83,10 +77,6 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
     // check for system halt command configuration
     if (theConfigNode->childNode("SystemHalt")) {
         const dom::NodePtr & mySystemHaltNode = theConfigNode->childNode("SystemHalt");
-        const dom::NodePtr & myAttribute = mySystemHaltNode->getAttribute("powerDownProjectors");
-        if (myAttribute) {
-            _myPowerDownProjectorsOnHalt = asl::as<bool>(myAttribute->nodeValue());
-        }
         _mySystemHaltCommand = mySystemHaltNode->getAttributeString("command");
         AC_DEBUG <<"_mySystemHaltCommand: " << _mySystemHaltCommand;
     }
@@ -94,13 +84,8 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
     // check for system reboot command configuration
     if (theConfigNode->childNode("SystemReboot")) {
         const dom::NodePtr & mySystemRebootNode = theConfigNode->childNode("SystemReboot");
-        const dom::NodePtr & myAttribute = mySystemRebootNode->getAttribute("shutterCloseProjectors");
-        if (myAttribute) {
-            _myShutterCloseProjectorsOnReboot = asl::as<bool>(myAttribute->nodeValue());
-        }
         _mySystemRebootCommand = mySystemRebootNode->getAttributeString("command");
         AC_DEBUG <<"_mySystemRebootCommand: " << _mySystemRebootCommand;
-        AC_DEBUG <<"_myShutterCloseProjectorsOnReboot: " << _myShutterCloseProjectorsOnReboot;
     }
 
     // check for application restart command configuration
@@ -120,13 +105,8 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
     // check for application stop command configuration
     if (theConfigNode->childNode("StopApplication")) {
         const dom::NodePtr & myStopAppNode = theConfigNode->childNode("StopApplication");
-        const dom::NodePtr & myAttribute = myStopAppNode->getAttribute("shutterCloseProjectors");
-        if (myAttribute) {
-            _myShutterCloseProjectorsOnStop = asl::as<bool>(myAttribute->nodeValue());
-        }
         _myStopAppCommand = myStopAppNode->getAttributeString("command");
         AC_DEBUG <<"_myStopAppCommand: " << _myStopAppCommand;
-        AC_DEBUG <<"_myShutterCloseProjectorsOnStop: " << _myShutterCloseProjectorsOnStop;
     }
 
     // check for application start command configuration
@@ -160,40 +140,13 @@ UDPCommandListenerThread::UDPCommandListenerThread(std::vector<Projector *> theP
             }
         }
     }
-    if (_myProjectors.size() > 0 ) {
-        cout << "Projectors: " << endl;
-        for (std::vector<Projector*>::size_type i = 0; i < _myProjectors.size(); i++) {
-            cout << (i+1) << ": " << _myProjectors[i]->getDescription()<< endl;;
-        }
-    }
 }
 
 UDPCommandListenerThread::~UDPCommandListenerThread() {
 }
 
-bool
-UDPCommandListenerThread::controlProjector(const std::string & theCommand)
-{
-    if (_myProjectors.size() == 0) {
-        cerr << "No projectors configured, ignoring '" << theCommand << "'" << endl;
-        return false;
-    }
-
-    bool myCommandHandled = true;
-    for (unsigned i = 0; i < _myProjectors.size(); ++i) {
-        myCommandHandled &= _myProjectors[i]->command(theCommand);
-    }
-
-    return myCommandHandled;
-}
-
 void
 UDPCommandListenerThread::initiateShutdown() {
-
-    if (_myPowerDownProjectorsOnHalt) {
-        // shutdown all connected projectors
-        controlProjector("projector_off");
-    }
 
     if (_myShutdownCommand != "") {
         int myError = system(_myShutdownCommand.c_str());
@@ -205,11 +158,6 @@ UDPCommandListenerThread::initiateShutdown() {
 
 void
 UDPCommandListenerThread::initiateReboot() {
-
-    if (_myShutterCloseProjectorsOnReboot) {
-        // close shutter on all connected projectors
-        controlProjector("projector_shutter_close");
-    }
 
     if (_myShutdownCommand != "") {
         int myError = system(_myShutdownCommand.c_str());
@@ -331,20 +279,12 @@ UDPCommandListenerThread::run() {
                     } else if (isCommand(myCommand, _myStopAppCommand)) {
                         cerr << "Client received stop application packet" << endl;
                         _myLogger.logToFile( string( "Stop application from Network" ));
-                        if (_myShutterCloseProjectorsOnStop) {
-                            // close shutter on all connected projectors
-                            controlProjector("projector_shutter_close");
-                        }
                         _myApplication.setPaused(true);
                         myMessage = _myStopAppCommand;
                     } else if (isCommand(myCommand, _myStartAppCommand)) {
                         cerr << "Client received start application packet" << endl;
                         _myLogger.logToFile( string( "Start application from Network" ));
                         _myApplication.setPaused(false);
-                        if (_myShutterCloseProjectorsOnStop) {
-                            // open shutter on all connected projectors
-                            controlProjector("projector_shutter_open");
-                        }
                         myMessage = _myStartAppCommand;
                     } else if (isCommand(myCommand, _myStatusReportCommand)) {
                         cerr << "Client received status report request" << endl;
@@ -359,8 +299,6 @@ UDPCommandListenerThread::run() {
                         } else if ( myProcessResult == PR_TERMINATED ) {
                             myMessage = "error application terminated";
                         }
-                    } else if (controlProjector(myCommand) == true) {
-                        // pass
                     } else {
                         ostringstream myOss;
                         myOss << "### UDPCommandListener: Unexpected packet '" << myCommand

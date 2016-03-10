@@ -14,8 +14,6 @@
 #define INCL_UDPCOMMANDLISTENERTHREAD_H
 
 
-class Projector;
-
 #include <asl/base/PosixThread.h>
 #include <asl/dom/Nodes.h>
 
@@ -27,8 +25,7 @@ class Projector;
 class Application;
 class UDPCommandListenerThread : public asl::PosixThread {
     public:
-        UDPCommandListenerThread(std::vector<Projector *> theProjectors,
-                                 Application & theApplication,
+        UDPCommandListenerThread(Application & theApplication,
                                  const dom::NodePtr & theConfigNode,
                                  Logger & theLogger, 
                                  std::string & theShutdownCommand);
@@ -39,21 +36,16 @@ class UDPCommandListenerThread : public asl::PosixThread {
         void sendReturnMessage(asl::Unsigned32 theClientHost, asl::Unsigned16 theClientPort, const std::string & theMessage);
         
         bool allowedIp(asl::Unsigned32 theHostAddress);
-        bool controlProjector(const std::string & theCommand);
 
         void initiateShutdown();
         void initiateReboot();
 
-        std::vector<Projector*> _myProjectors;
         int                     _myUDPPort;
         bool                    _myReturnMessageFlag;
         int                     _myReturnMessagePort;
 
         Application &           _myApplication;
         Logger &                _myLogger;
-        bool                    _myPowerDownProjectorsOnHalt;
-        bool                    _myShutterCloseProjectorsOnStop;
-        bool                    _myShutterCloseProjectorsOnReboot;
         std::string             _mySystemHaltCommand;
         std::string             _myRestartAppCommand;
         std::string             _mySwitchAppCommand;

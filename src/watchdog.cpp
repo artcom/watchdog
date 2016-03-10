@@ -47,7 +47,6 @@
 #endif
 
 #include "system_functions.h"
-#include "Projector.h"
 #include "parse_helpers.h"
 
 
@@ -83,7 +82,6 @@ WatchDog::WatchDog()
       _myIgnoreTerminateCmdOnUdpCmd(false),
       _myAppToWatch(_myLogger),
       _myUDPCommandListenerThread(0),
-      _myPowerUpProjectorsOnStartup(true),
       _myRebootTimeInSecondsToday(-1),
       _myHaltTimeInSecondsToday(-1),
       _myRestartAppFlag(true)
@@ -97,19 +95,6 @@ WatchDog::arm() {
     // see q97925
     SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (LPVOID)0, SPIF_SENDWININICHANGE | SPIF_UPDATEINIFILE);
 #endif
-
-    if (_myProjectors.size() && _myPowerUpProjectorsOnStartup) {
-        cerr << "Watchdog - Powering up projectors..." << endl;
-        for (unsigned i = 0; i < _myProjectors.size(); ++i) {
-            _myProjectors[i]->powerUp();
-        }
-
-        cerr << "Watchdog - Setting all projectors' inputs" << endl;
-        for (unsigned i = 0; i < _myProjectors.size(); ++i) {
-            // set projector's input to the configured one
-            _myProjectors[i]->selectInput();
-        }
-    }
 
     if (_myAppToWatch.performECG()) {
         _myLogger.logToFile(std::string("Monitoring heartbeat file: ") + _myAppToWatch.getHeartbeatFile());
@@ -201,11 +186,6 @@ WatchDog::watch() {
             std::string myRestartMessage = "Application shutdown";
 
             while (!_myAppToWatch.paused() && _myAppToWatch.getProcessResult() == PR_RUNNING) {
-                // update projector state
-                for (unsigned i = 0; i < _myProjectors.size(); ++i) {
-                    _myProjectors[i]->update();
-                }
-
                 // watch application
                 myReturnString = _myAppToWatch.runUntilNextCheck(_myWatchFrequency);
                 _myAppToWatch.checkHeartbeat();
@@ -382,20 +362,7 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
             // Setup UDP control
             if (myConfigNode->childNode("UdpControl")) {
                 const dom::NodePtr & myUdpControlNode = myConfigNode->childNode("UdpControl");
-                // Setup projector control
-                if (myUdpControlNode->childNode("ProjectorControl")) {
-                    const dom::NodePtr & myProjectorsNode = myUdpControlNode->childNode("ProjectorControl");
-                    _myPowerUpProjectorsOnStartup = asl::as<bool>(myProjectorsNode->getAttribute("powerUpOnStartup")->nodeValue());
-                    for (unsigned i = 0; i < myProjectorsNode->childNodesLength(); ++i) {
-                        Projector* myProjector = Projector::getProjector(myProjectorsNode->childNode(i), &_myLogger);
-                        if (myProjector) {
-                            _myProjectors.push_back(myProjector);
-                        }
-                    }
-                    AC_DEBUG <<"Found " << _myProjectors.size() << " projectors";
-                }
-
-                _myUDPCommandListenerThread = new UDPCommandListenerThread(_myProjectors, _myAppToWatch, 
+                _myUDPCommandListenerThread = new UDPCommandListenerThread(_myAppToWatch,
                                                         myUdpControlNode, _myLogger, _myShutdownCommand);
 
                 if (myUdpControlNode->childNode("ContinuousStatusChangeReport")) {
