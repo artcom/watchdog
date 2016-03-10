@@ -376,23 +376,31 @@ Application::checkHeartbeat() {
             _myHeartIsBroken =  false;
             return;
         }
-        dom::Document myHeartbeatXml;
-        myHeartbeatXml.parse(myHeartbeatStr);
+        try {
+            dom::Document myHeartbeatXml;
+            myHeartbeatXml.parse(myHeartbeatStr);
 
-        string mySecondsSince1970Str = myHeartbeatXml.firstChild()->getAttributeString("secondsSince1970");
-        time_t myCurrentSecondsSince_1_1_1970;
-        time( &myCurrentSecondsSince_1_1_1970 );
+            string mySecondsSince1970Str = myHeartbeatXml.firstChild()->getAttributeString("secondsSince1970");
+            time_t myCurrentSecondsSince_1_1_1970;
+            time( &myCurrentSecondsSince_1_1_1970 );
 
-        time_t myLastHeartbeatAge = myCurrentSecondsSince_1_1_1970
-                                - convertFromString<long>(mySecondsSince1970Str);
-        AC_DEBUG <<" myCurrentSecondsSince_1_1_1970 : " << myCurrentSecondsSince_1_1_1970 ;
-        AC_DEBUG <<" last heartbeat sec since 1.1.70: "
-                 <<  convertFromString<long>(mySecondsSince1970Str) ;
-        AC_DEBUG <<" last age : " << myLastHeartbeatAge ;
-        if ( myLastHeartbeatAge > _myHeartbeatFrequency * _myAllowMissingHeartbeats) {
-            _myHeartIsBroken = true;
-        } else {
-            _myHeartIsBroken =  false;
+            time_t myLastHeartbeatAge = myCurrentSecondsSince_1_1_1970
+                                    - convertFromString<long>(mySecondsSince1970Str);
+            AC_DEBUG <<" myCurrentSecondsSince_1_1_1970 : " << myCurrentSecondsSince_1_1_1970 ;
+            AC_DEBUG <<" last heartbeat sec since 1.1.70: "
+                     <<  convertFromString<long>(mySecondsSince1970Str) ;
+            AC_DEBUG <<" last age : " << myLastHeartbeatAge ;
+            if ( myLastHeartbeatAge > _myHeartbeatFrequency * _myAllowMissingHeartbeats) {
+                _myHeartIsBroken = true;
+            } else {
+                _myHeartIsBroken =  false;
+            }
+        } catch (const asl::Exception& e) {
+                std::cerr << "Failed to parse heartbeat file " <<
+                    _myHeartbeatFile << " got exception: " << e << std::endl;
+                _myLogger.logToFile(std::string("Failed to parse heartbeat file ") + _myHeartbeatFile +
+                        std::string("got exception ") + asl::as_string(e));
+                _myHeartIsBroken = false;
         }
     } else {
         _myHeartIsBroken =  false;
