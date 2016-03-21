@@ -380,7 +380,20 @@ Application::checkHeartbeat() {
             dom::Document myHeartbeatXml;
             myHeartbeatXml.parse(myHeartbeatStr);
 
-            string mySecondsSince1970Str = myHeartbeatXml.firstChild()->getAttributeString("secondsSince1970");
+            string nodename;
+            if (myHeartbeatXml.childNode("heartbeat")) {
+                nodename = "heartbeat";
+            }
+            if (myHeartbeatXml.childNode("Heartbeat")) {
+                nodename = "Heartbeat";
+            }
+            if (nodename.empty()) {
+                _myLogger.logToFile("Could not find xmlnode 'heartbeat' in heartbeatfile: " + _myHeartbeatFile);
+                _myHeartIsBroken =  false;
+                return;
+            }
+            const dom::NodePtr & heartbeatNode = myHeartbeatXml.childNode(nodename);
+            string mySecondsSince1970Str = heartbeatNode->getAttributeString("secondsSince1970");
             time_t myCurrentSecondsSince_1_1_1970;
             time( &myCurrentSecondsSince_1_1_1970 );
 
