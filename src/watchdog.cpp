@@ -182,7 +182,7 @@ WatchDog::watch() {
                 _myLogger.logToFile(string("application is launched, execute additional command, returned with error: ") + asl::as_string(myError));
             }
 
-            continuousStatusReport("runnning");
+            continuousStatusReport("running");
             std::string myRestartMessage = "Application shutdown";
 
             while (!_myAppToWatch.paused() && _myAppToWatch.getProcessResult() == PR_RUNNING) {
