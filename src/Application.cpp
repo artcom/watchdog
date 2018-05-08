@@ -158,6 +158,22 @@ bool Application::setup(const dom::NodePtr & theAppNode, const std::string & the
 #else
         _myAppLogFile = asl::expandEnvironment(
             theAppNode->getAttribute("logFile")->nodeValue() );
+        if (theAppNode->getAttribute("logFormatter")) {
+            std::string myFormatString = theAppNode->getAttribute("logFormatter")->nodeValue();
+            if (myFormatString.empty()) {
+                myFormatString = "%Y-%M-%D-%h-%m-%s";
+            }
+            std::string::size_type myDotPos = _myAppLogFile.rfind(".", _myAppLogFile.size());
+            if (myDotPos == std::string::npos) {
+                myDotPos = _myAppLogFile.size();
+            }
+            asl::Time now;
+            now.toLocalTime();
+            std::ostringstream myTimeString;
+            myTimeString << asl::formatTime(myFormatString.c_str()) << now;
+            _myAppLogFile = _myAppLogFile.substr(0, myDotPos) + "_" + myTimeString.str()
+                + _myAppLogFile.substr(myDotPos, _myAppLogFile.size());
+        }
         AC_DEBUG <<"_myAppLogFile: " << _myAppLogFile;
 #endif
     }
@@ -344,16 +360,19 @@ Application::launch() {
 
     std::string myCommandLine = _myFileName + " " + getArguments();
 
+    std::string logstring = " Command : '" + myCommandLine  + "'" +
+                             (_myAppLogFile != "" ? " redirecting stdout/stderr to : '" +
+                              _myAppLogFile + "'" : "") +
+                             (_myWorkingDirectory != "" ? " working directory: '" +
+                              asl::expandEnvironment(_myWorkingDirectory) + "'" : "");
     if (!myResult) {
-        _myLogger.logToFile( getLastError() + " Command : '" + myCommandLine  + "'" + 
-                             (_myAppLogFile != "" ? " redirecting stdout/stderr to : '" + _myAppLogFile + "'" : "") + 
-                             (_myWorkingDirectory != "" ? " working directoy: '" + asl::expandEnvironment(_myWorkingDirectory) + "'" : ""));
-        cerr << getLastError() << "\n\n" << myCommandLine << endl;
+        _myLogger.logToFile( getLastError() + logstring);
+        cerr << getLastError() << "\n\n" << logstring << endl;
         exit(-1);
     }
     _myStartTimeInSeconds = getElapsedSecondsToday();
 
-    _myLogger.logToFile("Started successfully: " + myCommandLine + (_myWorkingDirectory != "" ? " in working directoy: '" + asl::expandEnvironment(_myWorkingDirectory) + "'" : "") );
+    _myLogger.logToFile("Started successfully: " + logstring);
     _myProcessResult = PR_RUNNING;
 
     _myItIsTimeToRestart   = false;
