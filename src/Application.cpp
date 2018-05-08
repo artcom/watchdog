@@ -343,7 +343,7 @@ void
 Application::launch() {
     _myEnvironmentVariables[STARTUP_COUNT_ENV] = asl::as_string(++_myStartupCount);
     setEnvironmentVariables();
-    std:string myAppLogFileWithTimestamp(_myAppLogFile);
+    std::string myAppLogFileWithTimestamp(_myAppLogFile);
     if (!_myAppLogFile.empty()) {
         if (_myAppLogFileFormatter) {
             if (_myAppLogFileFormatString.empty()) {
