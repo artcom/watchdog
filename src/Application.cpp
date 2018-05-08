@@ -70,6 +70,8 @@ Application::Application(Logger & theLogger)
 _myApplicationWatchdogDirectory(""),
 _myFileName(""),
 _myAppLogFile(""),
+_myAppLogFileFormatString(""),
+_myAppLogFileFormatter(false),
 _myWorkingDirectory(""),
 _myWindowTitle(""),
 #ifdef WIN32
@@ -158,23 +160,12 @@ bool Application::setup(const dom::NodePtr & theAppNode, const std::string & the
 #else
         _myAppLogFile = asl::expandEnvironment(
             theAppNode->getAttribute("logFile")->nodeValue() );
-        if (theAppNode->getAttribute("logFormatter")) {
-            std::string myFormatString = theAppNode->getAttribute("logFormatter")->nodeValue();
-            if (myFormatString.empty()) {
-                myFormatString = "%Y-%M-%D-%h-%m-%s";
-            }
-            std::string::size_type myDotPos = _myAppLogFile.rfind(".", _myAppLogFile.size());
-            if (myDotPos == std::string::npos) {
-                myDotPos = _myAppLogFile.size();
-            }
-            asl::Time now;
-            now.toLocalTime();
-            std::ostringstream myTimeString;
-            myTimeString << asl::formatTime(myFormatString.c_str()) << now;
-            _myAppLogFile = _myAppLogFile.substr(0, myDotPos) + "_" + myTimeString.str()
-                + _myAppLogFile.substr(myDotPos, _myAppLogFile.size());
-        }
         AC_DEBUG <<"_myAppLogFile: " << _myAppLogFile;
+
+        if (theAppNode->getAttribute("logFormatter")) {
+            _myAppLogFileFormatString = theAppNode->getAttribute("logFormatter")->nodeValue();
+            _myAppLogFileFormatter = true;
+        }
 #endif
     }
     if (theAppNode->childNode("EnvironmentVariables")) {
@@ -352,7 +343,25 @@ void
 Application::launch() {
     _myEnvironmentVariables[STARTUP_COUNT_ENV] = asl::as_string(++_myStartupCount);
     setEnvironmentVariables();
-    bool myResult = launchApp( _myFileName, _myArguments, asl::expandEnvironment(_myWorkingDirectory), _myAppLogFile,
+    std:string myAppLogFileWithTimestamp = _myAppLogFile;
+    if (!_myAppLogFile.empty()) {
+        if (_myAppLogFileFormatter) {
+            if (_myAppLogFileFormatString.empty()) {
+                _myAppLogFileFormatString = "%Y-%M-%D-%h-%m-%s";
+            }
+            std::string::size_type myDotPos = _myAppLogFile.rfind(".", _myAppLogFile.size());
+            if (myDotPos == std::string::npos) {
+                myDotPos = _myAppLogFile.size();
+            }
+            asl::Time now;
+            now.toLocalTime();
+            std::ostringstream myTimeString;
+            myTimeString << asl::formatTime(_myAppLogFileFormatString.c_str()) << now;
+            myAppLogFileWithTimestamp = _myAppLogFile.substr(0, myDotPos) + "_" + myTimeString.str()
+                + _myAppLogFile.substr(myDotPos, _myAppLogFile.size());
+        }
+    }
+    bool myResult = launchApp( _myFileName, _myArguments, asl::expandEnvironment(_myWorkingDirectory), myAppLogFileWithTimestamp,
 #ifdef WIN32
                                _myShowWindowMode,
 #endif
@@ -362,7 +371,7 @@ Application::launch() {
 
     std::string logstring = " Command : '" + myCommandLine  + "'" +
                              (_myAppLogFile != "" ? " redirecting stdout/stderr to : '" +
-                              _myAppLogFile + "'" : "") +
+                              myAppLogFileWithTimestamp + "'" : "") +
                              (_myWorkingDirectory != "" ? " working directory: '" +
                               asl::expandEnvironment(_myWorkingDirectory) + "'" : "");
     if (!myResult) {
