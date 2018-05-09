@@ -133,6 +133,7 @@ bool Application::setup(const dom::NodePtr & theAppNode, const std::string & the
     if (_myFileName.empty()){
         _myLogger.logToFile("### ERROR, no application binary to watch.");        
         cerr <<"### ERROR, no application binary to watch." << endl;
+        setPaused(true);
         return false;
     }
     
@@ -343,6 +344,12 @@ void
 Application::launch() {
     _myEnvironmentVariables[STARTUP_COUNT_ENV] = asl::as_string(++_myStartupCount);
     setEnvironmentVariables();
+    if (_myFileName.empty()){
+        _myLogger.logToFile("### ERROR, no application binary to watch.");
+        cerr <<"### ERROR, no application binary to watch." << endl;
+        setPaused(true);
+        return;
+    }
     std::string myAppLogFileWithTimestamp(_myAppLogFile);
     if (!_myAppLogFile.empty()) {
         if (_myAppLogFileFormatter) {

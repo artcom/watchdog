@@ -239,6 +239,8 @@ WatchDog::watch() {
                 continuousStatusReport("pausing");
                 while (_myAppToWatch.paused()) {
                     asl::msleep(1000);
+                    checkForHalt();
+                    checkForReboot();
                 }
             }
         }
@@ -263,7 +265,6 @@ WatchDog::checkForReboot() {
                 int myError = system(_myShutdownCommand.c_str());
                 cerr << "shutdown command: \"" << _myShutdownCommand << "\" return with " << myError << endl;
             }
-            
             initiateSystemReboot();
         }
     }
@@ -278,7 +279,6 @@ WatchDog::checkForHalt() {
                 int myError = system(_myShutdownCommand.c_str());
                 cerr << "shutdown command: \"" << _myShutdownCommand << "\" return with " << myError << endl;
             }
-            
             initiateSystemShutdown();
         }
     }
@@ -432,7 +432,8 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                     return false;
                 }
             } else {
-                AC_WARNING << "xml document should have either Application or SwitchableApplications node";
+                _myAppToWatch.setPaused(true);
+                AC_WARNING << "no Application to watch";
             }
         }
 
