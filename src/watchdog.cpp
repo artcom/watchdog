@@ -461,6 +461,8 @@ main(int argc, char* argv[] ) {
     }
     bool myRestartAppFlag = true;
     dom::Document myConfigDoc;
+    string myConfigFile(ourDefaultConfigFile);
+
     if (ourArguments.haveOption("--revisions")) {
         using asl::build_information;
         std::cout << build_information::get();
@@ -471,29 +473,25 @@ main(int argc, char* argv[] ) {
     }
 
     if (ourArguments.getCount() > 0) {
-        bool ok = readConfigFile (myConfigDoc, ourArguments.getArgument(0));
-        if (!ok) {
-            AC_ERROR << "given config file '" << ourArguments.getArgument(0) << "' could not be read. exit.";
-        }
-
-
+        myConfigFile = ourArguments.getArgument(0);
     //deprecated
     } else if (ourArguments.haveOption("--configfile")) {
         AC_WARNING << "using --configfile-option is deprecated. Use argument instead.";
-        bool ok = readConfigFile (myConfigDoc, ourArguments.getOptionArgument("--configfile"));
+        myConfigFile = ourArguments.getOptionArgument("--configfile");    
+    }
+    if (asl::fileExists(myConfigFile)) {
+        bool ok = readConfigFile (myConfigDoc, myConfigFile);
         if (!ok) {
-            AC_ERROR << "given config file '" << ourArguments.getOptionArgument("--configfile") << "' could not be read. exit.";
-        }
-
-
-    } else {
-        if (asl::fileExists(ourDefaultConfigFile)) {
-            readConfigFile (myConfigDoc, ourDefaultConfigFile);
-        } else {
+            AC_ERROR << "given config file '" << myConfigFile << "' could not be read.";
             ourArguments.printUsage();
             return -1;
         }
+    } else {
+        AC_ERROR << "given config file '" << myConfigFile << "' could not be found.";
+        ourArguments.printUsage();
+        return -1;
     }
+
 
     asl::Exception::initExceptionBehaviour();
 #ifndef WIN32
