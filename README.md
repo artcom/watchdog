@@ -241,8 +241,8 @@ Full featured Udpcontrol configuration node:
         <SystemReboot command="reboot"/>
         <RestartApplication command="restart"/>
         <SwitchApplication command="switch_app"/>
-        <StopApplication command="firealarm_on"/>
-        <StartApplication command="firealarm_off"/>
+        <StopApplication command="stop"/>
+        <StartApplication command="start"/>
         <StatusReport command="status" loadingtime="2"/>
         <ContinuousStatusChangeReport ip="10.1.1.106" port="6655"/>
     </UdpControl>
