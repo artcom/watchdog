@@ -298,6 +298,7 @@ Application::checkForRestart( std::string & myRestartMessage ) {
     }
     if (_myRecvRestart) {
         myRestartMessage = RECEIVED_RESTART_APP_STRING;//"Received restart command.";
+        asl::AutoLocker<asl::ThreadLock> myAutoLock(_myLock);
         _myRecvRestart = false;
         return true;
     }
