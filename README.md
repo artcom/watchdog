@@ -132,7 +132,7 @@ The feature set in Detail:
 
 Full featured application configuration node:
 
-    <Application binary="calc.exe" directory="" logFile="calc.log" logFormatter="%Y-%M-%D-%h-%m-%s" showWindow="maximized|minimized">
+    <Application binary="calc.exe" directory="" logFile="calc.log" logFormatter="%Y-%M-%D-%h-%m-%s" windowtitle"Calculator" showWindow="maximized|minimized">
         <EnvironmentVariables>
             <!--<EnvironmentVariable name="key"><![CDATA[value]]></EnvironmentVariable>-->
         </EnvironmentVariables>
@@ -159,9 +159,10 @@ Full featured application configuration node:
 - Attributes are as follows:
   - 'binary'     - defines the binary filename
   - 'directory'  - watchdog changes to this directory before executing app [optional]
-  - 'logFile'    - watchdog will redirect all stdout and stderr outputs to this filename [optional, but linux/osx only]
-  - 'logFormatter' - add a timestring in this format to the filename, empty string means use deafault [optional, but linux/osx only]
-  - 'showWindow' - is optional, default is maximized
+  - 'logFile'    - watchdog will redirect all stdout and stderr outputs to this filename [optional, Linux/OSX only]
+  - 'logFormatter' - add a timestring in this format to the filename, empty string means use default [optional, Linux/OSX only]
+  - 'showWindow' - maximized|minimized can be set, default is maximized [optional, Windows only]
+  - 'windowtitle' - when set the watchdog tries to find the window with the title and if found gracefully stops or restarts the application. If not set the watchdog by default terminates the application [optional, Windows only]
 
 - Optional nodes:              
 

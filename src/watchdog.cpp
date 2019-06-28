@@ -206,7 +206,7 @@ WatchDog::watch() {
                 int myError = system(_myApplicationPreTerminateCommand.c_str());
                 _myLogger.logToFile(string("application will be terminated, send additional pre_restart command, returned with error: ") + asl::as_string(myError));
             }
-            _myAppToWatch.terminate(myRestartMessage, false);
+            _myAppToWatch.terminate(myRestartMessage, true);
 
             _myLogger.logToFile(_myAppToWatch.getFilename() + string(" exited: ") + myReturnString);
 
