@@ -129,7 +129,7 @@ WatchDog::continuousStatusReport( std::string theStateMsg) {
             }
         }
         catch (Exception & ) {
-            _myLogger.logToFile(std::string("Sorry, cannot establish socket connection to ip: '") + _myContinuousStateChangeIP + "'");            
+            _myLogger.logToFile(std::string("Sorry, cannot establish socket connection to ip: '") + _myContinuousStateChangeIP + "'");
         }
     }
 }
@@ -190,7 +190,7 @@ WatchDog::watch() {
                 myReturnString = _myAppToWatch.runUntilNextCheck(_myWatchFrequency);
                 _myAppToWatch.checkHeartbeat();
                 _myAppToWatch.checkState();
-    
+
                 // system halt & reboot
                 checkForHalt();
                 checkForReboot();
@@ -317,7 +317,7 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                     return false;
                 }
             }
-            
+
             // check for additional startup command
             if (myConfigNode->childNode("PreStartupCommand")) {
                 _myStartupCommand = asl::expandEnvironment((*myConfigNode->childNode("PreStartupCommand")).firstChild()->nodeValue());
@@ -335,7 +335,7 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 _myPostApplicationLaunchCommand = asl::expandEnvironment((*myConfigNode->childNode("PostAppLaunchCommand")).firstChild()->nodeValue());
                 AC_DEBUG << "_myPostApplicationLaunchCommand: " << _myPostApplicationLaunchCommand;
             }
-            
+
             // check for additional shutdown command
             if (myConfigNode->childNode("PreShutdownCommand")) {
                 _myShutdownCommand = asl::expandEnvironment((*myConfigNode->childNode("PreShutdownCommand")).firstChild()->nodeValue());
@@ -351,13 +351,11 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 AC_DEBUG << "_myApplicationTerminatedCommand: " << _myApplicationTerminatedCommand;
             }
 
-            
             // check for application pre terminate command
             if (myConfigNode->childNode("AppPreTerminateCommand")) {
                 _myApplicationPreTerminateCommand = asl::expandEnvironment((*myConfigNode->childNode("AppPreTerminateCommand")).firstChild()->nodeValue());
                 AC_DEBUG << "_myApplicationPreTerminateCommand: " << _myApplicationPreTerminateCommand;
             }
-
 
             // Setup UDP control
             if (myConfigNode->childNode("UdpControl")) {
@@ -401,7 +399,7 @@ WatchDog::init(dom::Document & theConfigDoc, bool theRestartAppFlag) {
                 _myHaltTimeInSecondsToday += asl::as<int>(myMinutes) * 60;
                 AC_DEBUG <<"_myHaltTimeInSecondsToday : " << _myHaltTimeInSecondsToday;
             }
-            
+
             // Setup application
             if (myConfigNode->childNode("Application")) {
                 const dom::NodePtr & myApplicationNode = myConfigNode->childNode("Application");
@@ -455,7 +453,7 @@ main(int argc, char* argv[] ) {
 
     ourArguments.addAllowedOptionsWithDocumentation(ourAllowedOptions);
     ourArguments.setShortDescription("Default configfile: " + ourDefaultConfigFile);
-    
+
     if (!ourArguments.parse(argc, argv)) {
         return 0;
     }
@@ -477,7 +475,7 @@ main(int argc, char* argv[] ) {
     //deprecated
     } else if (ourArguments.haveOption("--configfile")) {
         AC_WARNING << "using --configfile-option is deprecated. Use argument instead.";
-        myConfigFile = ourArguments.getOptionArgument("--configfile");    
+        myConfigFile = ourArguments.getOptionArgument("--configfile");
     }
     if (asl::fileExists(myConfigFile)) {
         bool ok = readConfigFile (myConfigDoc, myConfigFile);

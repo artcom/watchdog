@@ -198,7 +198,7 @@ bool launchApp( const std::string & theFileName,
     if (theShowWindowMode == MINIMIZED) {
         showWindowMode = SW_MINIMIZE;
     }
-    
+
     STARTUPINFO StartupInfo = {
         sizeof(STARTUPINFO),
         NULL, NULL, NULL, 0, 0, 0, 0, 0, 0,
@@ -248,7 +248,7 @@ bool launchApp( const std::string & theFileName,
         int fd = open(theAppLogFile.c_str(), O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
         dup2(fd, 1);   // make stdout go to file
         dup2(fd, 2);   // make stderr go to file
-        close(fd);     // fd no longer needed   
+        close(fd);     // fd no longer needed
     }
     std::cerr << std::endl;
     if ( ! theWorkingDirectory.empty() ) {

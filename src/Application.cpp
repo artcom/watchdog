@@ -131,12 +131,11 @@ bool Application::setup(const dom::NodePtr & theAppNode, const std::string & the
     _myFileName = asl::expandEnvironment(theAppNode->getAttribute("binary")->nodeValue());
     AC_DEBUG <<"_myFileName: " << _myFileName;
     if (_myFileName.empty()){
-        _myLogger.logToFile("### ERROR, no application binary to watch.");        
+        _myLogger.logToFile("### ERROR, no application binary to watch.");
         cerr <<"### ERROR, no application binary to watch." << endl;
         setPaused(true);
         return false;
     }
-    
 
     if (theAppNode->getAttribute("windowtitle")) {
         _myWindowTitle = theAppNode->getAttribute("windowtitle")->nodeValue();
@@ -317,7 +316,6 @@ Application::restart() {
 
 void
 Application::switchApplication(std::string theId) {
-    
     dom::Document myApplicationConfigDoc;
     bool ok = readConfigFile(myApplicationConfigDoc, _myApplicationWatchdogDirectory + "/" + theId + ".xml");
     if (!ok) {

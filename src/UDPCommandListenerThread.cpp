@@ -57,7 +57,7 @@ UDPCommandListenerThread::UDPCommandListenerThread(Application & theApplication,
     _myStopAppCommand(""),
     _myStartAppCommand(""),
     _myStatusReportCommand(""),
-    _myStatusLoadingDelay(0), 
+    _myStatusLoadingDelay(0),
     _myShutdownCommand(theShutdownCommand)
 {
     // check for UDP port
@@ -195,7 +195,7 @@ UDPCommandListenerThread::sendReturnMessage(asl::Unsigned32 theClientHost, asl::
             }
         }
         if (myUDPClient) {
-            myUDPClient->sendTo(theClientHost, theClientPort, theMessage.c_str(), theMessage.size());            
+            myUDPClient->sendTo(theClientHost, theClientPort, theMessage.c_str(), theMessage.size());
             delete myUDPClient;
             cerr << "send message to client: " << theMessage << " to host:" << theClientHost << " on port #" << theClientPort << endl;
         }
@@ -270,7 +270,7 @@ UDPCommandListenerThread::run() {
                         _myApplication.restart();
                         myMessage = _myRestartAppCommand;
                     } else if (isCommand(myCommand, _mySwitchAppCommand) && myArguments.size() == 1) {
-                        cerr << "Client received switch application (id '" << myArguments[0] 
+                        cerr << "Client received switch application (id '" << myArguments[0]
                                 << "') packet " << endl;
                         _myLogger.logToFile( string("Switch application from Network" ));
                         std::string myId = myArguments[0];
@@ -289,7 +289,7 @@ UDPCommandListenerThread::run() {
                     } else if (isCommand(myCommand, _myStatusReportCommand)) {
                         cerr << "Client received status report request" << endl;
                         _myLogger.logToFile( string("StatusReport request from Network" ));
-    
+
                         ProcessResult myProcessResult = _myApplication.getProcessResult();
                         if ( myProcessResult == PR_FAILED ) {
                             myMessage = "error application launch failed";

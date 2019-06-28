@@ -34,7 +34,6 @@ class UDPCommandListenerThread : public asl::PosixThread {
     private:
         void run();
         void sendReturnMessage(asl::Unsigned32 theClientHost, asl::Unsigned16 theClientPort, const std::string & theMessage);
-        
         bool allowedIp(asl::Unsigned32 theHostAddress);
 
         void initiateShutdown();
