@@ -74,11 +74,14 @@ Follow the compile and install instruction for acmake and asl which can be found
 	```
 2. Configure the build tree (this is the equivalent of ./configure)
 
-   ```
-   cd _builds/release
-   cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../../
-	```
-   
+    ```
+    cd _builds/release
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../../
+    ```
+
+   CMake looks in the usual install paths for the dependent asl and acmake libraries. If you want to use a current build of asl or acmake instead of the installed one you need to set `ASL_DIR` and `ACMAKE_DIR` manually to the location of the build dir of the libraries accordingly.
+   E.g. `<build_dir>/lib/[asl|acmake]/cmake`.
+
 3. Build the sources
 
    ```
