@@ -1,5 +1,7 @@
+# Summary
+
 The ART+COM AG Watchdog is a utility to start, watch and control applications and computer. It has a interface to control its functionality via udp-network packets. 
-It is open-source and available for windows, linux and mac-osx. 
+It is open-source and available for Windows, Linux and macOS. 
 
 # Prebuild Windows 32 Bit binary
 - get the latest installer Watchdog-*.*.*-win32.exe from [[https://y60.artcom.de/redmine/projects/y60/files]]
@@ -12,79 +14,103 @@ Checkout watchdog sources
    
     git clone https://github.com/artcom/watchdog.git
 
-### Build on Windows
-#### Prerequisits
+## Build on Windows
+
+### Prerequisites
+
+Download and install the following packages:
+
+- Cygwin shell
 - Visual Studio Express 9 2008, 32Bit
 - CMAKE Version 2.8 or higher
-from [[https://y60.artcom.de/redmine/projects/y60/files]]
+from https://y60.artcom.de/redmine/projects/y60/files
 - get the latest dependencies: PRO60Dependencies-*.*.*-win32.exe
 - get the appropriate asl library: ASL-*.*.*-win32.exe
 - get the appropriate acmake library: AcMake-*.*.*-win32.exe
-and install them
 
-#### Build process
+### Build process
 Create build target directory:
   
     cd watchdog
     mkdir obj  
     cd obj  
 
-Make build scripts using cmake (either for nmake or visual Studio 9 2008).  
-Build with ide: 
+Make build scripts using cmake (either for nmake or Visual Studio 9 2008).  
+#### Build with Visual Studio 9 2008 IDE 
 
     cmake -G "Visual Studio 9 2008" .. 
-    open Watchdog.sln and build it using the ide
+    open Watchdog.sln and build it using the IDE
 
-Build with nMake via shell: 
+#### Build with nMake via shell
 
     cmake -G "NMake Makefiles" ..
     nmake
 
-### Linux
-#### Install dependencies
-The Ubuntu way:
+## Build on Linux
 
-     sudo apt-get install build-essential autoconf2.13 cmake libboost-dev libglib2.0-dev libcurl4-openssl-dev libasound2-dev
+Documented is the build process for Ubuntu. If you're using a different Linux derivate the dependencies might be called differently or even other packages needs to be installed. Also you're probably use a different package manager.
 
-#### get dependent libraries
+### Install system dependencies
+For Ubuntu:
+
+     sudo apt-get install git build-essential autoconf2.13 cmake libboost-dev libglib2.0-dev libcurl4-openssl-dev libasound2-dev
+
+### Install dependent ART+COM libraries
+
+Checkout the following repositories:
+
     git clone git@github.com:artcom/acmake.git
     git clone git@github.com:artcom/asl.git
 
-do the following steps for acmake, asl, watchdog
-#### Create yourself a build directory (you will need one per build configuration)
-    cd [project]
-    mkdir -p _builds/release
+Follow the compile and install instruction for acmake and asl which can be found in there repository.
 
-#### Configure the build tree (this is the equivalent of ./configure)
+### Build process
 
-    cd _builds/release
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../../
+1. Create yourself a build directory (you will need one per build configuration)
 
-#### Build the sources
+	```
+   cd [build_dir]
+   mkdir -p _builds/release
+	```
+2. Configure the build tree (this is the equivalent of ./configure)
 
-    make -jX
+   ```
+   cd _builds/release
+   cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../../
+	```
+   
+3. Build the sources
 
-#### Install [project]
+   ```
+   make -jX
+	```
+   
+4. Install watchdog
 
-    make -jX
+   ```
+   sudo make install
+	```
+   
+## MacOS with Homebrew
 
-### Mac OS X with Homebrew
+We have [Homebrew](https://brew.sh) support. This makes installing on MacOS easier than ever!
 
-We have Homebrew [[http://mxcl.github.com/homebrew/]] support. This makes installing on Mac OS X easier than ever!
+### Prerequisites:
 
-#### Prerequisites:
+- [Homebrew Installation](https://brew.sh)
 
-- Homebrew Installation: [[https://github.com/mxcl/homebrew/wiki/installation]]
+### Add the artcom tap
 
-#### Add the artcom tap for y60 and related projects ([[https://github.com/artcom/homebrew-y60]]):
+For watchdog and related projects there is a tap here: https://github.com/artcom/homebrew-y60.
 
     brew tap artcom/y60
 
-#### Install watchdog:
+### Install watchdog
 
     brew install watchdog
 
 # Usage
+
 The commandline usage: i.e. with windows executable:
 
     'watchdog.exe [--configfile <watchdog.xml>] [--copyright] [--help] [--no_restart] [--revision] [--revisions] [--version] watchdog.XML'  
@@ -92,7 +118,7 @@ The commandline usage: i.e. with windows executable:
 The default configfile will be loaded in current working directoy with name 'watchdog.xml', the parameter '--configfile <watchdog.xml>' will use given configfile.  
 The common watchdog behaviour is to restart application once they exit by any reason, to prevent this use the '--no_restart' flag, which will exit the watchdog after application finish.
 
-# Configuration
+## Configuration
 
 All the functions are configured via the xml-configfile, which elements will be explained in detail below.
 
@@ -123,8 +149,7 @@ The full feature set is divided in three categories:
 3. Udpcontrol interface for status and controlling of computer and application
 
 All optional nodes are obsolete, the functionality will be disabled.
-The notation ${env_var} will evaluate the environment variable 'env_var' into the string, and is used in heartbeat_file definition, 
-application binary,arguments and working directory.
+The notation `${env_var}` will evaluate the environment variable and is used in heartbeat_file definition, application binary, arguments and working directory.
 
 The feature set in Detail:
 
@@ -174,12 +199,12 @@ Full featured application configuration node:
     and has children of \<EnvironmentVariable>-nodes with key-value definition of the environment variable
     with the use of CDATA-definition it is possible to handle specials character easier (i.e. '\').
   
-  - The Heartbeat detection will check the content of a given file and expects the seconds since 1970 in a format like this:
+  - \<Heartbeat> Heartbeat detection will check the content of a given file and expects the seconds since 1970 in a format like this:
   \<heartbeat secondsSince1970="1332154365"/>
-    The childnode \<Heartbeat_File> will define the heartbeat file in its childnode. 
-    The childnode \<Allow_Missing_Heartbeats> will define the allowed mssing heartbeat before the watchdog assumes a app to be dead.
-    The childnode \<Heartbeat_Frequency> will define expected frequency ot the heartbeat in seconds.
-    The childnode \<FirstHeartBeatDelay> will define delay in seconds, before the heartbeat detection begins (i.e. for a longer app starttime).
+     - \<Heartbeat_File> will define the heartbeat file in its childnode. 
+     - \<Allow_Missing_Heartbeats> will define the allowed mssing heartbeat before the watchdog assumes a app to be dead.
+     - \<Heartbeat_Frequency> will define expected frequency ot the heartbeat in seconds.
+     - \<FirstHeartBeatDelay> will define delay in seconds, before the heartbeat detection begins (i.e. for a longer app starttime).
   
   - \<WaitDuringStartup> will define a startup time before the app starts
   - \<WaitDuringRestart> will define a wait time before the app restarts
@@ -222,7 +247,8 @@ Fully Optional nodes:
 - \<HaltTime> will define a timestamp at which the computer will shutdown
 - \<AppPreTerminateCommand> will define a systemcommand to be executed before the app will be terminated
 - \<AppTerminateCommand> will define a systemcommand to be executed after the app terminated
-   Attributes: \<ignoreOnUdpRestart> - can be made dependent if the app is restartet via udp or exited internally
+   - attributes:
+   		- `ignoreOnUdpRestart` - can be made dependent if the app is restarted via udp or exited internally
 - \<PreShutdownCommand> will define a systemcommand to be executed before the computer is shutdown
 - \<PreStartupCommand> will define a systemcommand to be executed when the watchdog is started
 - \<PreAppLaunchCommand> will define a systemcommand to be executed before the application is launched
