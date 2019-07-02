@@ -56,7 +56,7 @@ Documented is the build process for Ubuntu. If you're using a different Linux de
 
 For Ubuntu:
 
-     sudo apt-get install git build-essential autoconf2.13 cmake libboost-dev libglib2.0-dev libcurl4-openssl-dev libasound2-dev
+     sudo apt-get install git build-essential autoconf2.13 cmake libboost-dev libboost-system-dev libboost-thread-dev libglib2.0-dev libcurl4-openssl-dev libasound2-dev
 
 ### Install dependent ART+COM libraries
 
