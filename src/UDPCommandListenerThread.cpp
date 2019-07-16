@@ -216,12 +216,12 @@ UDPCommandListenerThread::run() {
     cout << "* UDP Listener on port: " << _myUDPPort << endl;
     cout << "* UDP Listener return messages: " << _myReturnMessageFlag << " to sender port #" << _myReturnMessagePort << endl;
     cout << "* Commands:" << endl;
-    cout << "      System Halt  : " << _mySystemHaltCommand << endl;
-    cout << "      System Reboot: " << _mySystemRebootCommand << endl;
-    cout << "Application restart: " << _myRestartAppCommand << endl;
-    cout << "Application switch : " << _mySwitchAppCommand << endl;
-    cout << "Application stop   : " << _myStopAppCommand << endl;
-    cout << "Application start  : " << _myStartAppCommand << endl;
+    cout << "    System Halt         : " << _mySystemHaltCommand << endl;
+    cout << "    System Reboot       : " << _mySystemRebootCommand << endl;
+    cout << "    Application restart : " << _myRestartAppCommand << endl;
+    cout << "    Application stop    : " << _myStopAppCommand << endl;
+    cout << "    Application start   : " << _myStartAppCommand << endl;
+    cout << "    Application switch  : " << _mySwitchAppCommand << endl;
 
     try {
         UDPSocket myUDPServer( INADDR_ANY, static_cast<asl::Unsigned16>(_myUDPPort) );
