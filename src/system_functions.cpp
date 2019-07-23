@@ -266,15 +266,18 @@ bool launchApp( const std::string & theFileName,
 #endif
 }
 
-void closeApp( const std::string & theWindowTitle, const ProcessInfo & theProcessInfo,
+ProcessResult closeApp( const std::string & theWindowTitle, const ProcessInfo & theProcessInfo,
                Logger & theLogger)
 {
 #ifdef WIN32
+    BOOL ok;
+    ProcessResult myResult = PR_RUNNING;
     // Send WM_CLOSE to window
     if (!theWindowTitle.empty()) {
         HWND myHWnd = FindWindow (0, theWindowTitle.c_str());
         if (!myHWnd) {
-            theLogger.logToFile(string("Could not find Window ") + theWindowTitle);
+            std::cerr << "Could not find Window '" << theWindowTitle << "'" << std::endl;
+            theLogger.logToFile(string("Could not find Window '") + theWindowTitle + string("'"));
         } else {
             // Find process handle for window
             DWORD myWindowProcessId;
@@ -290,18 +293,31 @@ void closeApp( const std::string & theWindowTitle, const ProcessInfo & theProces
                 TerminateProcess(myWindowProcessHandle, 0);
                 CloseHandle(myWindowProcessHandle);
             }
+            myResult = PR_TERMINATED;
         }
     }
-    else {
+    if (myResult != PR_TERMINATED) {
         // Terminate process
         theLogger.logToFile("Try to terminate application.");
-        TerminateProcess(theProcessInfo.hProcess, 0);
-        theLogger.logToFile("O.k., terminated.");
-
-        // Close process and thread handles.
-        CloseHandle( theProcessInfo.hProcess );
-        CloseHandle( theProcessInfo.hThread );
+        ok = TerminateProcess(theProcessInfo.hProcess, 0);
+        if (!ok) {
+            myResult = PR_FAILED;
+            dumpLastError ("TerminateProcess");
+        } else {
+            myResult = PR_TERMINATED;
+            theLogger.logToFile("O.k., terminated.");
+        }
     }
+    // Close process and thread handles.
+    ok = CloseHandle( theProcessInfo.hProcess );
+    if (!ok) {
+        dumpLastError ("CloseProcessHandle");
+    }
+    ok = CloseHandle( theProcessInfo.hThread );
+    if (!ok) {
+        dumpLastError ("CloseThreadHandle");
+    }
+    return myResult;
 #elif defined(LINUX) || defined(OSX)
     theLogger.logToFile("Try to terminate application.");
     kill( theProcessInfo, SIGTERM );
@@ -319,6 +335,7 @@ void closeApp( const std::string & theWindowTitle, const ProcessInfo & theProces
             std::abort();
             break;
     }
+    return myResult;
 #else
 #error Your platform is missing!
 #endif

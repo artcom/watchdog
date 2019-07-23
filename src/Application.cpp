@@ -276,10 +276,9 @@ void
 Application::terminate(const std::string & theReason, bool theWMCloseAllowed){
     _myLogger.logToFile(string("Terminate because: ") + theReason);
     if (_myProcessResult == PR_RUNNING) {
-        closeApp( theWMCloseAllowed ? _myWindowTitle : std::string(""), _myProcessInfo,
+        _myProcessResult = closeApp( theWMCloseAllowed ? _myWindowTitle : std::string(""), _myProcessInfo,
                   _myLogger );
     }
-    _myProcessResult = PR_TERMINATED;
 }
 
 bool

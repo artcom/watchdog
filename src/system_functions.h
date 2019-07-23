@@ -67,7 +67,7 @@ bool launchApp( const std::string & theFileName,
                 const std::string & theShowWindowMode,
 #endif
                 ProcessInfo & theProcessInfo);
-void closeApp( const std::string & theWindowTitle, const ProcessInfo & theProcessInfo,
+ProcessResult closeApp( const std::string & theWindowTitle, const ProcessInfo & theProcessInfo,
                Logger & theLogger);
 ErrorNumber getLastErrorNumber();
 std::string getLastError();
